@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { GameState, Player, GamePhase } from "../types/game";
+import { GameState, Player, GamePhase, PlayerRole } from "../types/game";
 import { toast } from "sonner";
 
 interface GameContextType {
@@ -53,19 +53,35 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       ["Pizza", "Burger"],
       ["Beach", "Mountain"],
       ["Coffee", "Tea"],
+      ["Car", "Bus"],
+      ["Sun", "Moon"],
     ];
     const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
     const [majorityWord, undercoverWord] = randomPair;
 
     const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
     const numUndercover = Math.floor(gameState.players.length / 4);
+    const hasMrWhite = gameState.players.length >= 5;
 
-    const updatedPlayers = shuffledPlayers.map((player, index) => ({
-      ...player,
-      word: index < numUndercover ? undercoverWord : majorityWord,
-      isUndercover: index < numUndercover,
-      isEliminated: false,
-    }));
+    const updatedPlayers = shuffledPlayers.map((player, index) => {
+      let role: PlayerRole = "civilian";
+      let word = majorityWord;
+
+      if (hasMrWhite && index === 0) {
+        role = "mrwhite";
+        word = undefined;
+      } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
+        role = "undercover";
+        word = undercoverWord;
+      }
+
+      return {
+        ...player,
+        word,
+        role,
+        isEliminated: false,
+      };
+    });
 
     setGameState((prev) => ({
       ...prev,
@@ -81,10 +97,43 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const submitVote = (voterId: string, targetId: string) => {
-    setGameState((prev) => ({
-      ...prev,
-      votingResults: { ...(prev.votingResults || {}), [voterId]: targetId },
-    }));
+    setGameState((prev) => {
+      const newVotingResults = { ...(prev.votingResults || {}), [voterId]: targetId };
+      
+      // Check if everyone has voted
+      const activePlayers = prev.players.filter(p => !p.isEliminated);
+      const allVoted = activePlayers.every(p => p.id in newVotingResults);
+      
+      if (allVoted) {
+        // Count votes
+        const voteCount: Record<string, number> = {};
+        Object.values(newVotingResults).forEach(id => {
+          voteCount[id] = (voteCount[id] || 0) + 1;
+        });
+        
+        // Find player with most votes
+        const eliminatedId = Object.entries(voteCount).reduce((a, b) => 
+          (voteCount[a[0]] > voteCount[b[0]] ? a : b)
+        )[0];
+        
+        // Update eliminated player
+        const updatedPlayers = prev.players.map(p => 
+          p.id === eliminatedId ? { ...p, isEliminated: true } : p
+        );
+        
+        return {
+          ...prev,
+          players: updatedPlayers,
+          votingResults: {},
+          phase: "results"
+        };
+      }
+      
+      return {
+        ...prev,
+        votingResults: newVotingResults
+      };
+    });
   };
 
   const resetGame = () => {

@@ -1,8 +1,10 @@
+export type PlayerRole = "civilian" | "undercover" | "mrwhite";
+
 export type Player = {
   id: string;
   name: string;
   word?: string;
-  isUndercover?: boolean;
+  role?: PlayerRole;
   isEliminated?: boolean;
 };
 
@@ -14,6 +16,5 @@ export type GameState = {
   currentRound: number;
   majorityWord: string;
   undercoverWord: string;
-  timer?: number;
   votingResults?: Record<string, string>;
 };
