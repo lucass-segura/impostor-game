@@ -8,13 +8,15 @@ export const WordReveal = () => {
   const { peer } = usePeer();
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
+  console.log("Current player:", currentPlayer, "Peer ID:", peer?.id);
 
   const handleStartDiscussion = () => {
     setPhase("discussion");
   };
 
-  if (!currentPlayer) {
-    return <div>Loading...</div>;
+  if (!currentPlayer || !peer) {
+    console.log("Loading state - gameState:", gameState);
+    return <div className="text-white text-center">Loading...</div>;
   }
 
   return (
@@ -27,7 +29,7 @@ export const WordReveal = () => {
             <p className="text-lg text-white">You are Mr. White!</p>
           ) : (
             <p className="text-lg text-white">
-              Your word is: <span className="font-bold text-primary">{currentPlayer.word || "Loading..."}</span>
+              Your word is: <span className="font-bold text-primary">{currentPlayer.word}</span>
             </p>
           )}
           <p className="text-sm text-white/70">

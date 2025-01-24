@@ -41,11 +41,17 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       
       conn.on("open", () => {
         setConnections(prev => ({ ...prev, [conn.peer]: conn }));
+        
+        // Send current game state immediately after connection is established
+        if (gameState) {
+          conn.send({ type: "GAME_STATE", state: gameState });
+        }
       });
 
       conn.on("data", (data: any) => {
         if (data.type === "JOIN_GAME") {
           console.log("New player joining:", data.username);
+          const newPlayer = { id: conn.peer, name: data.username };
           addPlayer(data.username);
           // Send current game state to the new player
           conn.send({ type: "GAME_STATE", state: gameState });
