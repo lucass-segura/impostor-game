@@ -5,7 +5,7 @@ import { usePeer } from "../context/PeerContext";
 
 export const WordReveal = () => {
   const { gameState, setPhase } = useGame();
-  const { peer } = usePeer();
+  const { peer, isHost } = usePeer();
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   console.log("Current player:", currentPlayer, "Peer ID:", peer?.id);
@@ -50,12 +50,14 @@ export const WordReveal = () => {
         </div>
       </Card>
 
-      <Button 
-        onClick={handleStartVoting} 
-        className="w-full bg-secondary hover:bg-secondary/90"
-      >
-        Start Voting
-      </Button>
+      {isHost && (
+        <Button 
+          onClick={handleStartVoting} 
+          className="w-full bg-secondary hover:bg-secondary/90"
+        >
+          Start Voting
+        </Button>
+      )}
     </div>
   );
 };

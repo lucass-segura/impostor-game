@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export const GameSetup = () => {
   const { gameState, startGame } = useGame();
-  const { hostId } = usePeer();
+  const { hostId, isHost } = usePeer();
 
   const handleCopyId = () => {
     if (hostId) {
@@ -56,7 +56,7 @@ export const GameSetup = () => {
         </div>
       </Card>
 
-      {gameState.players.length > 0 && (
+      {isHost && gameState.players.length > 0 && (
         <div className="text-center">
           <Button
             onClick={startGame}
