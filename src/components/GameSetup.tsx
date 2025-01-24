@@ -22,22 +22,22 @@ export const GameSetup = () => {
       
       <Card className="p-4 glass-morphism">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-white/80">Game ID:</span>
+          <span className="text-sm text-muted-foreground">Game ID:</span>
           <div className="flex items-center gap-2">
-            <code className="bg-secondary/30 px-3 py-1 rounded text-white font-mono text-lg whitespace-nowrap overflow-x-auto">{hostId}</code>
+            <code className="bg-secondary/30 px-3 py-1 rounded">{hostId}</code>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleCopyId}
               className="hover:bg-secondary/20"
             >
-              <Copy className="h-4 w-4 text-white" />
+              <Copy className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-white/80">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Users className="h-4 w-4" />
             <span>Players ({gameState.players.length})</span>
           </div>
@@ -48,7 +48,7 @@ export const GameSetup = () => {
                 key={player.id}
                 className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg"
               >
-                <span className="text-white">{player.name}</span>
+                <span>{player.name}</span>
               </div>
             ))}
           </div>
