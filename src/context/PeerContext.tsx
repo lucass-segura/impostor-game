@@ -48,6 +48,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       conn.on("data", (data: any) => {
+        console.log("Received data:", data);
         if (data.type === "JOIN_GAME") {
           console.log("New player joining:", data.username, "with peer ID:", conn.peer);
           addPlayer(data.username, conn.peer);
@@ -56,6 +57,15 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("Received game state:", data.state);
           setGameState(data.state);
         }
+      });
+
+      conn.on("close", () => {
+        console.log("Connection closed with:", conn.peer);
+        setConnections(prev => {
+          const newConnections = { ...prev };
+          delete newConnections[conn.peer];
+          return newConnections;
+        });
       });
     });
 
@@ -87,14 +97,16 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     conn.on("data", (data: any) => {
+      console.log("Received data in connection:", data);
       if (data.type === "GAME_STATE") {
-        console.log("Received initial game state:", data.state);
+        console.log("Setting received game state:", data.state);
         setGameState(data.state);
       }
     });
   };
 
   const sendGameState = (state: GameState) => {
+    console.log("Sending game state to all connections:", state);
     Object.values(connections).forEach(conn => {
       conn.send({ type: "GAME_STATE", state });
     });
@@ -102,6 +114,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (isHost && Object.keys(connections).length > 0) {
+      console.log("Host sending updated game state to all connections");
       sendGameState(gameState);
     }
   }, [gameState, isHost, connections]);

@@ -100,25 +100,44 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const submitVote = (voterId: string, targetId: string) => {
+    console.log(`Vote submitted: ${voterId} voted for ${targetId}`);
     setGameState((prev) => {
-      const newVotingResults = { ...(prev.votingResults || {}), [voterId]: targetId };
+      // Create new voting results object with the new vote
+      const newVotingResults = { 
+        ...(prev.votingResults || {}), 
+        [voterId]: targetId 
+      };
       
+      // Get active (non-eliminated) players
       const activePlayers = prev.players.filter(p => !p.isEliminated);
+      
+      // Check if all active players have voted
       const allVoted = activePlayers.every(p => p.id in newVotingResults);
       
+      console.log("Current votes:", newVotingResults);
+      console.log("All players voted:", allVoted);
+      
       if (allVoted) {
+        // Count votes
         const voteCount: Record<string, number> = {};
         Object.values(newVotingResults).forEach(id => {
           voteCount[id] = (voteCount[id] || 0) + 1;
         });
         
+        // Find player with most votes
         const eliminatedId = Object.entries(voteCount).reduce((a, b) => 
           (voteCount[a[0]] > voteCount[b[0]] ? a : b)
         )[0];
         
+        // Update eliminated status
         const updatedPlayers = prev.players.map(p => 
           p.id === eliminatedId ? { ...p, isEliminated: true } : p
         );
+        
+        const eliminatedPlayer = updatedPlayers.find(p => p.id === eliminatedId);
+        if (eliminatedPlayer) {
+          toast.info(`${eliminatedPlayer.name} has been eliminated!`);
+        }
         
         return {
           ...prev,
