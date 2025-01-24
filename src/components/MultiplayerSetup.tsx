@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePeer } from "../context/PeerContext";
+import { useGame } from "../context/GameContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -7,14 +8,28 @@ import { toast } from "sonner";
 
 export const MultiplayerSetup = () => {
   const { hostGame, joinGame, hostId } = usePeer();
+  const { addPlayer } = useGame();
   const [joinId, setJoinId] = useState("");
+  const [username, setUsername] = useState("");
 
   const handleJoin = () => {
     if (!joinId.trim()) {
       toast.error("Please enter a game ID!");
       return;
     }
-    joinGame(joinId.trim());
+    if (!username.trim()) {
+      toast.error("Please enter your username!");
+      return;
+    }
+    joinGame(joinId.trim(), username.trim());
+  };
+
+  const handleHost = () => {
+    if (!username.trim()) {
+      toast.error("Please enter your username!");
+      return;
+    }
+    hostGame(username.trim());
   };
 
   return (
@@ -22,8 +37,16 @@ export const MultiplayerSetup = () => {
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-center">Join or Host a Game</h2>
         
+        <Input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
+          className="w-full"
+        />
+
         <Button
-          onClick={hostGame}
+          onClick={handleHost}
           className="w-full bg-primary hover:bg-primary/90"
         >
           Host New Game

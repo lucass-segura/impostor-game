@@ -9,8 +9,8 @@ interface PeerContextType {
   connections: Record<string, DataConnection>;
   hostId: string | null;
   isHost: boolean;
-  hostGame: () => void;
-  joinGame: (hostId: string) => void;
+  hostGame: (username: string) => void;
+  joinGame: (hostId: string, username: string) => void;
   sendGameState: (state: GameState) => void;
 }
 
@@ -21,7 +21,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const { gameState, setGameState } = useGame();
+  const { gameState, setGameState, addPlayer } = useGame();
 
   useEffect(() => {
     const newPeer = new Peer();
@@ -39,12 +39,21 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     newPeer.on("connection", (conn) => {
       console.log("Incoming connection from:", conn.peer);
       
-      conn.on("data", (data: GameState) => {
-        console.log("Received game state:", data);
-        setGameState(data);
+      conn.on("open", () => {
+        setConnections(prev => ({ ...prev, [conn.peer]: conn }));
       });
 
-      setConnections(prev => ({ ...prev, [conn.peer]: conn }));
+      conn.on("data", (data: any) => {
+        if (data.type === "JOIN_GAME") {
+          console.log("New player joining:", data.username);
+          addPlayer(data.username);
+          // Send current game state to the new player
+          conn.send({ type: "GAME_STATE", state: gameState });
+        } else if (data.type === "GAME_STATE") {
+          console.log("Received game state:", data.state);
+          setGameState(data.state);
+        }
+      });
     });
 
     return () => {
@@ -52,14 +61,15 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const hostGame = () => {
+  const hostGame = (username: string) => {
     if (!peer) return;
     setIsHost(true);
     setHostId(peer.id);
+    addPlayer(username);
     toast.success(`Game hosted! Share this ID with players: ${peer.id}`);
   };
 
-  const joinGame = (hostId: string) => {
+  const joinGame = (hostId: string, username: string) => {
     if (!peer) return;
     
     const conn = peer.connect(hostId);
@@ -67,20 +77,31 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     conn.on("open", () => {
       setConnections(prev => ({ ...prev, [hostId]: conn }));
       setHostId(hostId);
+      // Send join game message with username
+      conn.send({ type: "JOIN_GAME", username });
       toast.success("Connected to game!");
     });
 
-    conn.on("data", (data: GameState) => {
-      console.log("Received game state:", data);
-      setGameState(data);
+    conn.on("data", (data: any) => {
+      if (data.type === "GAME_STATE") {
+        console.log("Received initial game state:", data.state);
+        setGameState(data.state);
+      }
     });
   };
 
   const sendGameState = (state: GameState) => {
     Object.values(connections).forEach(conn => {
-      conn.send(state);
+      conn.send({ type: "GAME_STATE", state });
     });
   };
+
+  // Sync game state when it changes
+  useEffect(() => {
+    if (isHost && Object.keys(connections).length > 0) {
+      sendGameState(gameState);
+    }
+  }, [gameState, isHost, connections]);
 
   return (
     <PeerContext.Provider
