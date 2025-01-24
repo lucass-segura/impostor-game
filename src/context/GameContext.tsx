@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { GameState, Player, GamePhase } from "../types/game";
+import { GameState, GamePhase } from "../types/game";
 import { toast } from "sonner";
 
 interface GameContextType {
@@ -25,6 +25,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const addPlayer = (name: string) => {
+    if (gameState.phase !== "setup") {
+      toast.error("Cannot add players after game has started!");
+      return;
+    }
     if (gameState.players.length >= 10) {
       toast.error("Maximum 10 players allowed!");
       return;
