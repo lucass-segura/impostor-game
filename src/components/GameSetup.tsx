@@ -1,9 +1,10 @@
 import { useGame } from "../context/GameContext";
+import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Users, Copy, Hash } from "lucide-react";
-import { usePeer } from "../context/PeerContext";
+import { Copy, Hash } from "lucide-react";
 import { toast } from "sonner";
+import { PlayerList } from "./PlayerList";
 
 export const GameSetup = () => {
   const { gameState, startGame } = useGame();
@@ -36,25 +37,7 @@ export const GameSetup = () => {
         </div>
       </div>
 
-      <Card className="p-6 glass-morphism">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-white/90 text-lg">
-            <Users className="h-5 w-5" />
-            <span>Players ({gameState.players.length})</span>
-          </div>
-          
-          <div className="space-y-2">
-            {gameState.players.map((player) => (
-              <div
-                key={player.id}
-                className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-              >
-                <span className="text-white text-lg">{player.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
+      <PlayerList players={gameState.players} />
 
       {isHost && gameState.players.length > 0 && (
         <div className="text-center">
