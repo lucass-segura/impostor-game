@@ -1,7 +1,7 @@
 import { useGame } from "../context/GameContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Users, Copy } from "lucide-react";
+import { Users, Copy, Hash } from "lucide-react";
 import { usePeer } from "../context/PeerContext";
 import { toast } from "sonner";
 
@@ -22,12 +22,15 @@ export const GameSetup = () => {
       
       <div 
         onClick={handleCopyId}
-        className="bg-secondary/40 p-6 rounded-lg mb-6 border border-white/10 hover:bg-secondary/50 transition-colors cursor-pointer group"
+        className="glass-morphism p-6 rounded-lg mb-6 hover:bg-white/10 transition-colors cursor-pointer group"
       >
+        <div className="flex items-center gap-2 text-white/90 text-lg mb-4">
+          <Hash className="h-5 w-5" />
+          <span>Game ID</span>
+        </div>
         <div className="flex items-center justify-between">
-          <span className="text-white/90 text-lg whitespace-nowrap">Game ID:</span>
-          <div className="flex items-center gap-3">
-            <code className="bg-primary/20 px-4 py-2 rounded text-white font-mono text-lg">{hostId}</code>
+          <div className="flex items-center gap-3 w-full">
+            <code className="bg-white/5 px-4 py-2 rounded-lg text-white font-mono text-lg w-full text-center">{hostId}</code>
             <Copy className="h-5 w-5 text-white/70 group-hover:text-white transition-colors" />
           </div>
         </div>
