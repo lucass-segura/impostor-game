@@ -26,12 +26,16 @@ const GameContent = () => {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
-      <GameProvider>
-        <PeerProvider>
-          <GameContent />
-        </PeerProvider>
-      </GameProvider>
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1F2C] to-[#2C1F3D] text-white">
+      <div className="container mx-auto px-4 py-8">
+        <GameProvider>
+          <PeerProvider>
+            <div className="max-w-4xl mx-auto">
+              <GameContent />
+            </div>
+          </PeerProvider>
+        </GameProvider>
+      </div>
     </div>
   );
 };
