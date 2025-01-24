@@ -5,7 +5,7 @@ import { toast } from "sonner";
 interface GameContextType {
   gameState: GameState;
   setGameState: (state: GameState) => void;
-  addPlayer: (name: string) => void;
+  addPlayer: (name: string, id: string) => void;
   removePlayer: (id: string) => void;
   startGame: () => void;
   setPhase: (phase: GamePhase) => void;
@@ -24,14 +24,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     undercoverWord: "",
   });
 
-  const addPlayer = (name: string) => {
+  const addPlayer = (name: string, id: string) => {
     if (gameState.players.length >= 10) {
       toast.error("Maximum 10 players allowed!");
       return;
     }
     setGameState((prev) => ({
       ...prev,
-      players: [...prev.players, { id: crypto.randomUUID(), name }],
+      players: [...prev.players, { id, name }],
     }));
   };
 
@@ -60,16 +60,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
     const [majorityWord, undercoverWord] = randomPair;
 
-    // Create a copy of players array for shuffling
     const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
-    
-    // Calculate number of undercover players (25% of total players)
     const numUndercover = Math.floor(gameState.players.length / 4);
-    
-    // Determine if we should have Mr. White (only for 5+ players)
     const hasMrWhite = gameState.players.length >= 5;
 
-    // Assign roles and words to players
     const updatedPlayers = shuffledPlayers.map((player, index) => {
       let role: PlayerRole = "civilian";
       let word = majorityWord;
@@ -109,23 +103,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     setGameState((prev) => {
       const newVotingResults = { ...(prev.votingResults || {}), [voterId]: targetId };
       
-      // Check if everyone has voted
       const activePlayers = prev.players.filter(p => !p.isEliminated);
       const allVoted = activePlayers.every(p => p.id in newVotingResults);
       
       if (allVoted) {
-        // Count votes
         const voteCount: Record<string, number> = {};
         Object.values(newVotingResults).forEach(id => {
           voteCount[id] = (voteCount[id] || 0) + 1;
         });
         
-        // Find player with most votes
         const eliminatedId = Object.entries(voteCount).reduce((a, b) => 
           (voteCount[a[0]] > voteCount[b[0]] ? a : b)
         )[0];
         
-        // Update eliminated player
         const updatedPlayers = prev.players.map(p => 
           p.id === eliminatedId ? { ...p, isEliminated: true } : p
         );

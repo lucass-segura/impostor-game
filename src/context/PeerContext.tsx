@@ -42,7 +42,6 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       conn.on("open", () => {
         setConnections(prev => ({ ...prev, [conn.peer]: conn }));
         
-        // Send current game state immediately after connection is established
         if (gameState) {
           conn.send({ type: "GAME_STATE", state: gameState });
         }
@@ -51,9 +50,8 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       conn.on("data", (data: any) => {
         if (data.type === "JOIN_GAME") {
           console.log("New player joining:", data.username);
-          const newPlayer = { id: conn.peer, name: data.username };
-          addPlayer(data.username);
-          // Send current game state to the new player
+          // Use the peer ID as the player ID
+          addPlayer(data.username, conn.peer);
           conn.send({ type: "GAME_STATE", state: gameState });
         } else if (data.type === "GAME_STATE") {
           console.log("Received game state:", data.state);
@@ -71,7 +69,8 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     if (!peer) return;
     setIsHost(true);
     setHostId(peer.id);
-    addPlayer(username);
+    // Use the peer ID as the player ID for the host
+    addPlayer(username, peer.id);
     toast.success(`Game hosted! Share this ID with players: ${peer.id}`);
   };
 
@@ -83,7 +82,6 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     conn.on("open", () => {
       setConnections(prev => ({ ...prev, [hostId]: conn }));
       setHostId(hostId);
-      // Send join game message with username
       conn.send({ type: "JOIN_GAME", username });
       toast.success("Connected to game!");
     });
@@ -102,7 +100,6 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  // Sync game state when it changes
   useEffect(() => {
     if (isHost && Object.keys(connections).length > 0) {
       sendGameState(gameState);

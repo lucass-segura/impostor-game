@@ -9,14 +9,18 @@ export const WordReveal = () => {
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   console.log("Current player:", currentPlayer, "Peer ID:", peer?.id);
+  console.log("All players:", gameState.players);
 
   const handleStartDiscussion = () => {
     setPhase("discussion");
   };
 
-  if (!currentPlayer || !peer) {
-    console.log("Loading state - gameState:", gameState);
-    return <div className="text-white text-center">Loading...</div>;
+  if (!peer) {
+    return <div className="text-white text-center">Connecting...</div>;
+  }
+
+  if (!currentPlayer) {
+    return <div className="text-white text-center">Waiting for game data...</div>;
   }
 
   return (
