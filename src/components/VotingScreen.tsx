@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export const VotingScreen = () => {
   const { gameState, submitVote } = useGame();
-  const { peer } = usePeer();
+  const { peer, connections, hostId, isHost, sendToHost } = usePeer();
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
 
   const activePlayers = gameState.players.filter(p => !p.isEliminated);
@@ -17,7 +17,17 @@ export const VotingScreen = () => {
 
   const handleVote = () => {
     if (currentPlayer && selectedPlayer) {
-      submitVote(currentPlayer.id, selectedPlayer);
+      if (isHost) {
+        // If host, directly update the game state
+        submitVote(currentPlayer.id, selectedPlayer);
+      } else {
+        // If not host, send vote to host via WebRTC
+        sendToHost({
+          type: "SUBMIT_VOTE",
+          voterId: currentPlayer.id,
+          targetId: selectedPlayer
+        });
+      }
     }
   };
 

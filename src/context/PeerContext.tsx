@@ -12,6 +12,7 @@ interface PeerContextType {
   hostGame: (username: string) => void;
   joinGame: (hostId: string, username: string) => void;
   sendGameState: (state: GameState) => void;
+  sendToHost: (data: any) => void;
 }
 
 const PeerContext = createContext<PeerContextType | undefined>(undefined);
@@ -21,7 +22,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const { gameState, setGameState, addPlayer } = useGame();
+  const { gameState, setGameState, addPlayer, submitVote } = useGame();
 
   useEffect(() => {
     const newPeer = new Peer();
@@ -56,6 +57,9 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         } else if (data.type === "GAME_STATE") {
           console.log("Received game state:", data.state);
           setGameState(data.state);
+        } else if (data.type === "SUBMIT_VOTE") {
+          console.log("Received vote:", data);
+          submitVote(data.voterId, data.targetId);
         }
       });
 
@@ -112,6 +116,15 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const sendToHost = (data: any) => {
+    if (!hostId || !connections[hostId]) {
+      console.error("No connection to host");
+      return;
+    }
+    console.log("Sending data to host:", data);
+    connections[hostId].send(data);
+  };
+
   useEffect(() => {
     if (isHost && Object.keys(connections).length > 0) {
       console.log("Host sending updated game state to all connections");
@@ -129,6 +142,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         hostGame,
         joinGame,
         sendGameState,
+        sendToHost,
       }}
     >
       {children}
