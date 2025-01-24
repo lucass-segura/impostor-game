@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 interface GameContextType {
   gameState: GameState;
+  setGameState: (state: GameState) => void;
   addPlayer: (name: string) => void;
   removePlayer: (id: string) => void;
   startGame: () => void;
@@ -100,6 +101,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     <GameContext.Provider
       value={{
         gameState,
+        setGameState,
         addPlayer,
         removePlayer,
         startGame,
