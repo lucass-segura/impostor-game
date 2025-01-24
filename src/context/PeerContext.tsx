@@ -49,8 +49,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
       conn.on("data", (data: any) => {
         if (data.type === "JOIN_GAME") {
-          console.log("New player joining:", data.username);
-          // Use the peer ID as the player ID
+          console.log("New player joining:", data.username, "with peer ID:", conn.peer);
           addPlayer(data.username, conn.peer);
           conn.send({ type: "GAME_STATE", state: gameState });
         } else if (data.type === "GAME_STATE") {
@@ -67,9 +66,9 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const hostGame = (username: string) => {
     if (!peer) return;
+    console.log("Hosting game with peer ID:", peer.id);
     setIsHost(true);
     setHostId(peer.id);
-    // Use the peer ID as the player ID for the host
     addPlayer(username, peer.id);
     toast.success(`Game hosted! Share this ID with players: ${peer.id}`);
   };
@@ -78,6 +77,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     if (!peer) return;
     
     const conn = peer.connect(hostId);
+    console.log("Joining game with peer ID:", peer.id);
     
     conn.on("open", () => {
       setConnections(prev => ({ ...prev, [hostId]: conn }));
