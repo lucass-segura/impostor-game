@@ -56,20 +56,27 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       ["Car", "Bus"],
       ["Sun", "Moon"],
     ];
+    
     const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
     const [majorityWord, undercoverWord] = randomPair;
 
+    // Create a copy of players array for shuffling
     const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
+    
+    // Calculate number of undercover players (25% of total players)
     const numUndercover = Math.floor(gameState.players.length / 4);
+    
+    // Determine if we should have Mr. White (only for 5+ players)
     const hasMrWhite = gameState.players.length >= 5;
 
+    // Assign roles and words to players
     const updatedPlayers = shuffledPlayers.map((player, index) => {
       let role: PlayerRole = "civilian";
       let word = majorityWord;
 
       if (hasMrWhite && index === 0) {
         role = "mrwhite";
-        word = undefined;
+        word = "";  // Mr. White gets no word
       } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
         role = "undercover";
         word = undercoverWord;
@@ -82,6 +89,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         isEliminated: false,
       };
     });
+
+    console.log("Game started with players:", updatedPlayers);
 
     setGameState((prev) => ({
       ...prev,
