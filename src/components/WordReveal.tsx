@@ -12,8 +12,8 @@ export const WordReveal = () => {
   console.log("All players:", gameState.players);
   console.log("Loading state - gameState:", JSON.stringify(gameState, null, 4));
 
-  const handleStartDiscussion = () => {
-    setPhase("discussion");
+  const handleStartVoting = () => {
+    setPhase("voting");
   };
 
   if (!peer) {
@@ -51,10 +51,10 @@ export const WordReveal = () => {
       </Card>
 
       <Button 
-        onClick={handleStartDiscussion} 
+        onClick={handleStartVoting} 
         className="w-full bg-secondary hover:bg-secondary/90"
       >
-        Start Discussion
+        Start Voting
       </Button>
     </div>
   );

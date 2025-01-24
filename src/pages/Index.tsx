@@ -5,6 +5,7 @@ import { usePeer } from "../context/PeerContext";
 import { GameSetup } from "../components/GameSetup";
 import { WordReveal } from "../components/WordReveal";
 import { MultiplayerSetup } from "../components/MultiplayerSetup";
+import { VotingScreen } from "../components/VotingScreen";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -19,6 +20,8 @@ const GameContent = () => {
       return <GameSetup />;
     case "wordReveal":
       return <WordReveal />;
+    case "voting":
+      return <VotingScreen />;
     default:
       return <GameSetup />;
   }
