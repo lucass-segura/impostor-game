@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Peer from "peerjs";
+import { Peer, DataConnection } from "peerjs";
 import { useGame } from "./GameContext";
 import { toast } from "sonner";
 import { GameState } from "../types/game";
 
 interface PeerContextType {
   peer: Peer | null;
-  connections: Record<string, Peer.DataConnection>;
+  connections: Record<string, DataConnection>;
   hostId: string | null;
   isHost: boolean;
   hostGame: () => void;
@@ -18,7 +18,7 @@ const PeerContext = createContext<PeerContextType | undefined>(undefined);
 
 export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [peer, setPeer] = useState<Peer | null>(null);
-  const [connections, setConnections] = useState<Record<string, Peer.DataConnection>>({});
+  const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
   const { gameState, setGameState } = useGame();
