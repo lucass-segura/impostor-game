@@ -25,6 +25,8 @@ export const PlayerList = ({
       .map(([voterId]) => players.find(p => p.id === voterId)?.name || '');
   };
 
+  const hasCurrentPlayerVoted = currentPlayerId && votingResults?.[currentPlayerId];
+
   return (
     <Card className="p-6 glass-morphism">
       <div className="space-y-4">
@@ -35,7 +37,10 @@ export const PlayerList = ({
         
         <div className="space-y-2">
           {players.map((player) => {
-            if (player.isEliminated || player.id === currentPlayerId) return null;
+            // Skip eliminated players
+            if (player.isEliminated) return null;
+            // Skip current player if they haven't voted yet
+            if (player.id === currentPlayerId && !hasCurrentPlayerVoted) return null;
             
             const votes = getVotesForPlayer(player.id);
             
