@@ -2,34 +2,13 @@ import { useGame } from "../context/GameContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePeer } from "../context/PeerContext";
-import { useEffect, useState } from "react";
-import { Player } from "../types/game";
 import { PlayerList } from "./PlayerList";
 
 export const WordReveal = () => {
   const { gameState, setPhase } = useGame();
   const { peer, isHost } = usePeer();
-  const [playerOrder, setPlayerOrder] = useState<Player[]>([]);
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
-
-  useEffect(() => {
-    // Create a random order of players, ensuring Mr. White is not first
-    const generatePlayerOrder = () => {
-      const nonWhitePlayers = gameState.players.filter(p => p.role !== "mrwhite");
-      const whitePlayers = gameState.players.filter(p => p.role === "mrwhite");
-      
-      // Shuffle non-white players
-      const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
-      const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
-      
-      setPlayerOrder([...shuffledNonWhite, ...shuffledWhite]);
-    };
-
-    if (gameState.players.length > 0) {
-      generatePlayerOrder();
-    }
-  }, [gameState.players]);
 
   const handleStartVoting = () => {
     setPhase("voting");
@@ -72,7 +51,7 @@ export const WordReveal = () => {
       <div className="mt-8 space-y-4">
         <h3 className="text-xl font-semibold text-white text-center">Speaking Order</h3>
         <PlayerList 
-          players={playerOrder}
+          players={gameState.speakingOrder || []}
           currentPlayerId={peer.id}
           speakingOrder={true}
         />

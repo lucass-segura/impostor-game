@@ -42,6 +42,17 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }));
   };
 
+  const generateSpeakingOrder = (players: Player[]) => {
+    const nonWhitePlayers = players.filter(p => p.role !== "mrwhite");
+    const whitePlayers = players.filter(p => p.role === "mrwhite");
+    
+    // Shuffle non-white players
+    const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
+    const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
+    
+    return [...shuffledNonWhite, ...shuffledWhite];
+  };
+
   const startGame = () => {
     if (gameState.players.length < 4) {
       toast.error("Minimum 4 players required!");
@@ -84,11 +95,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       };
     });
 
+    // Generate speaking order after roles are assigned
+    const speakingOrder = generateSpeakingOrder(updatedPlayers);
+
     console.log("Game started with players:", updatedPlayers);
 
     setGameState((prev) => ({
       ...prev,
       players: updatedPlayers,
+      speakingOrder,
       phase: "wordReveal",
       majorityWord,
       undercoverWord,
