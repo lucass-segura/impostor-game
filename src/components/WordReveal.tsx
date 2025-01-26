@@ -2,15 +2,33 @@ import { useGame } from "../context/GameContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePeer } from "../context/PeerContext";
+import { useEffect, useState } from "react";
+import { Player } from "../types/game";
 
 export const WordReveal = () => {
   const { gameState, setPhase } = useGame();
   const { peer, isHost } = usePeer();
+  const [playerOrder, setPlayerOrder] = useState<Player[]>([]);
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
-  console.log("Current player:", currentPlayer, "Peer ID:", peer?.id);
-  console.log("All players:", gameState.players);
-  console.log("Loading state - gameState:", JSON.stringify(gameState, null, 4));
+
+  useEffect(() => {
+    // Create a random order of players, ensuring Mr. White is not first
+    const generatePlayerOrder = () => {
+      const nonWhitePlayers = gameState.players.filter(p => p.role !== "mrwhite");
+      const whitePlayers = gameState.players.filter(p => p.role === "mrwhite");
+      
+      // Shuffle non-white players
+      const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
+      const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
+      
+      setPlayerOrder([...shuffledNonWhite, ...shuffledWhite]);
+    };
+
+    if (gameState.players.length > 0) {
+      generatePlayerOrder();
+    }
+  }, [gameState.players]);
 
   const handleStartVoting = () => {
     setPhase("voting");
@@ -49,6 +67,24 @@ export const WordReveal = () => {
           </p>
         </div>
       </Card>
+
+      <div className="mt-8 space-y-4">
+        <h3 className="text-xl font-semibold text-white text-center">Speaking Order</h3>
+        <div className="bg-black/20 rounded-lg p-4">
+          {playerOrder.map((player, index) => (
+            <div 
+              key={player.id} 
+              className={`flex items-center space-x-2 p-2 ${
+                index === 0 ? 'text-primary font-bold' : 'text-white/80'
+              }`}
+            >
+              <span className="w-6 text-center">{index + 1}.</span>
+              <span>{player.name}</span>
+              {player.id === peer.id && <span className="text-primary ml-2">(You)</span>}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {isHost && (
         <Button 
