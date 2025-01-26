@@ -17,4 +17,5 @@ export type GameState = {
   majorityWord: string;
   undercoverWord: string;
   votingResults?: Record<string, string>;
+  speakingOrder?: Player[];  // Added this property
 };
