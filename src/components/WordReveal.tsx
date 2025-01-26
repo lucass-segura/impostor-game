@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { usePeer } from "../context/PeerContext";
 import { useEffect, useState } from "react";
 import { Player } from "../types/game";
+import { PlayerList } from "./PlayerList";
 
 export const WordReveal = () => {
   const { gameState, setPhase } = useGame();
@@ -70,20 +71,11 @@ export const WordReveal = () => {
 
       <div className="mt-8 space-y-4">
         <h3 className="text-xl font-semibold text-white text-center">Speaking Order</h3>
-        <div className="bg-black/20 rounded-lg p-4">
-          {playerOrder.map((player, index) => (
-            <div 
-              key={player.id} 
-              className={`flex items-center space-x-2 p-2 ${
-                index === 0 ? 'text-primary font-bold' : 'text-white/80'
-              }`}
-            >
-              <span className="w-6 text-center">{index + 1}.</span>
-              <span>{player.name}</span>
-              {player.id === peer.id && <span className="text-primary ml-2">(You)</span>}
-            </div>
-          ))}
-        </div>
+        <PlayerList 
+          players={playerOrder}
+          currentPlayerId={peer.id}
+          speakingOrder={true}
+        />
       </div>
 
       {isHost && (
