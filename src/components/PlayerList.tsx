@@ -58,7 +58,7 @@ export const PlayerList = ({
                 onClick={() => onPlayerClick?.(player.id)}
               >
                 <span className="text-white text-lg">{player.name}</span>
-                {votes.length > 0 && (
+                {hasCurrentPlayerVoted && votes.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {votes.map((voterName, index) => (
                       <span 
