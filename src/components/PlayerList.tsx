@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, UserX } from "lucide-react";
 import { Player } from "../types/game";
 
 interface PlayerListProps {
@@ -9,6 +9,8 @@ interface PlayerListProps {
   votingResults?: Record<string, string>;
   currentPlayerId?: string;
   speakingOrder?: boolean;
+  showEliminated?: boolean;
+  lastEliminatedId?: string;
 }
 
 export const PlayerList = ({ 
@@ -17,9 +19,10 @@ export const PlayerList = ({
   onPlayerClick,
   votingResults,
   currentPlayerId,
-  speakingOrder
+  speakingOrder,
+  showEliminated,
+  lastEliminatedId
 }: PlayerListProps) => {
-  // Get all votes for a specific player
   const getVotesForPlayer = (playerId: string) => {
     if (!votingResults) return [];
     return Object.entries(votingResults)
@@ -28,7 +31,7 @@ export const PlayerList = ({
   };
 
   const hasCurrentPlayerVoted = currentPlayerId && votingResults?.[currentPlayerId];
-  const displayPlayers = speakingOrder ? players : players.filter(p => !p.isEliminated);
+  const displayPlayers = speakingOrder ? players : (!showEliminated ? players.filter(p => !p.isEliminated) : players);
 
   return (
     <Card className="p-6 glass-morphism">
@@ -40,11 +43,11 @@ export const PlayerList = ({
         
         <div className="space-y-2">
           {displayPlayers.map((player, index) => {
-            // Skip current player if they haven't voted yet (only in voting phase)
             if (!speakingOrder && currentPlayerId && !hasCurrentPlayerVoted && player.id === currentPlayerId) return null;
             
             const votes = getVotesForPlayer(player.id);
             const showVotes = hasCurrentPlayerVoted && votes.length > 0;
+            const isLastEliminated = player.id === lastEliminatedId;
             
             return (
               <div
@@ -56,6 +59,8 @@ export const PlayerList = ({
                     ? 'bg-primary/20 border border-primary/30' 
                     : 'bg-white/5 hover:bg-white/10'
                   }
+                  ${isLastEliminated ? 'border-2 border-blue-500' : ''}
+                  ${player.isEliminated ? 'opacity-50' : ''}
                 `}
                 onClick={() => onPlayerClick?.(player.id)}
               >
@@ -68,23 +73,31 @@ export const PlayerList = ({
                     {index + 1}
                   </div>
                 )}
-                <div className="flex-1">
-                  <span className={`text-lg ${index === 0 && speakingOrder ? 'text-primary font-bold' : 'text-white'}`}>
-                    {player.name}
-                    {player.id === currentPlayerId && (
-                      <span className="text-primary ml-2">(You)</span>
+                <div className="flex-1 flex items-center justify-between">
+                  <div>
+                    <span className={`text-lg ${index === 0 && speakingOrder ? 'text-primary font-bold' : 'text-white'}`}>
+                      {player.name}
+                      {player.id === currentPlayerId && (
+                        <span className="text-primary ml-2">(You)</span>
+                      )}
+                    </span>
+                    {showVotes && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {votes.map((voterName, vIndex) => (
+                          <span 
+                            key={vIndex}
+                            className="px-2 py-1 text-sm rounded-full bg-primary/20 text-white/90"
+                          >
+                            {voterName}
+                          </span>
+                        ))}
+                      </div>
                     )}
-                  </span>
-                  {showVotes && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {votes.map((voterName, vIndex) => (
-                        <span 
-                          key={vIndex}
-                          className="px-2 py-1 text-sm rounded-full bg-primary/20 text-white/90"
-                        >
-                          {voterName}
-                        </span>
-                      ))}
+                  </div>
+                  {player.isEliminated && player.role && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-white/70">{player.role}</span>
+                      <UserX className="h-5 w-5 text-red-500" />
                     </div>
                   )}
                 </div>

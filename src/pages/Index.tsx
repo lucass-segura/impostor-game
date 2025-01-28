@@ -3,9 +3,11 @@ import { PeerProvider } from "../context/PeerContext";
 import { useGame } from "../context/GameContext";
 import { usePeer } from "../context/PeerContext";
 import { GameSetup } from "../components/GameSetup";
+import { GameLobby } from "../components/GameLobby";
 import { WordReveal } from "../components/WordReveal";
 import { MultiplayerSetup } from "../components/MultiplayerSetup";
 import { VotingScreen } from "../components/VotingScreen";
+import { Results } from "../components/Results";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -15,15 +17,25 @@ const GameContent = () => {
     return <MultiplayerSetup />;
   }
 
+  // Show GameSetup only if we're in setup phase and it's the first round
+  if (gameState.phase === "setup" && gameState.currentRound === 1) {
+    return <GameSetup />;
+  }
+
+  // Show GameLobby if we're in setup phase but not the first round
+  if (gameState.phase === "setup" && gameState.currentRound > 1) {
+    return <GameLobby />;
+  }
+
   switch (gameState.phase) {
-    case "setup":
-      return <GameSetup />;
     case "wordReveal":
       return <WordReveal />;
     case "voting":
       return <VotingScreen />;
+    case "results":
+      return <Results />;
     default:
-      return <GameSetup />;
+      return <GameLobby />;
   }
 };
 

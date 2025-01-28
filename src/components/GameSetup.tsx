@@ -1,7 +1,6 @@
 import { useGame } from "../context/GameContext";
 import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Copy, Hash } from "lucide-react";
 import { toast } from "sonner";
 import { PlayerList } from "./PlayerList";
@@ -19,7 +18,7 @@ export const GameSetup = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-white mb-8">Game Lobby</h1>
+      <h1 className="text-4xl font-bold text-white mb-8">Game Setup</h1>
       
       <div 
         onClick={handleCopyId}
