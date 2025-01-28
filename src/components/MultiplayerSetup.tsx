@@ -66,7 +66,7 @@ export const MultiplayerSetup = () => {
     <Card className="max-w-md mx-auto p-6 space-y-6 animate-fade-in glass-morphism">
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-center text-gradient">Welcome to Undercover</h2>
-        
+
         {!showHostForm && !showJoinForm && (
           <div className="space-y-4">
             <Button
@@ -77,17 +77,14 @@ export const MultiplayerSetup = () => {
               Host New Game
             </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-white/10" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#242A38] px-2 text-muted-foreground">
-                  Or join existing game
-                </span>
-              </div>
+            <div className="relative flex items-center">
+              <span className="flex-grow border-t border-white/10"></span>
+              <span className="px-4 text-xs uppercase text-muted-foreground">
+                Or join existing game
+              </span>
+              <span className="flex-grow border-t border-white/10"></span>
             </div>
-
+            
             <Button
               onClick={() => setShowJoinForm(true)}
               className="w-full bg-secondary hover:bg-secondary/90 transition-colors duration-200"
