@@ -29,21 +29,21 @@
 
 @layer base {
   * {
-    @apply border-border selection:bg-secondary/10 selection:text-secondary;
+    @apply border-border selection:bg-white/10 selection:text-white;
   }
   
   body {
-    @apply bg-background text-secondary antialiased;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 }
 
 @layer utilities {
   .glass-morphism {
-    @apply backdrop-blur-xl bg-white/80 border border-white/20 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)];
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
   }
   
   .text-gradient {
-    @apply bg-gradient-to-br from-secondary via-secondary/90 to-secondary/70 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
   }
 }

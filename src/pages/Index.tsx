@@ -29,7 +29,7 @@ const GameContent = () => {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F1F0FB] via-[#D3E4FD] to-[#F2FCE2] text-secondary">
+    <div className="min-h-screen bg-gradient-to-br from-accent via-secondary to-accent text-white">
       <div className="container mx-auto px-4 py-8">
         <GameProvider>
           <PeerProvider>
