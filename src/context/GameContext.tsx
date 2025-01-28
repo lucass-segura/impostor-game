@@ -43,8 +43,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const generateSpeakingOrder = (players: Player[]) => {
-    const nonWhitePlayers = players.filter(p => p.role !== "mrwhite");
-    const whitePlayers = players.filter(p => p.role === "mrwhite");
+    // Filter out eliminated players and Mr. White players
+    const nonWhitePlayers = players.filter(p => !p.isEliminated && p.role !== "mrwhite");
+    const whitePlayers = players.filter(p => !p.isEliminated && p.role === "mrwhite");
     
     // Shuffle non-white players
     const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
@@ -54,60 +55,70 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startGame = () => {
-    if (gameState.players.length < 4) {
-      toast.error("Minimum 4 players required!");
-      return;
-    }
-
-    const wordPairs = [
-      ["Dog", "Cat"],
-      ["Pizza", "Burger"],
-      ["Beach", "Mountain"],
-      ["Coffee", "Tea"],
-      ["Car", "Bus"],
-      ["Sun", "Moon"],
-    ];
-    
-    const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
-    const [majorityWord, undercoverWord] = randomPair;
-
-    const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
-    const numUndercover = Math.floor(gameState.players.length / 4);
-    const hasMrWhite = gameState.players.length >= 5;
-
-    const updatedPlayers = shuffledPlayers.map((player, index) => {
-      let role: PlayerRole = "civilian";
-      let word = majorityWord;
-
-      if (hasMrWhite && index === 0) {
-        role = "mrwhite";
-        word = "";  // Mr. White gets no word
-      } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
-        role = "undercover";
-        word = undercoverWord;
+    if (gameState.currentRound === 1) {
+      // First round - assign roles and words
+      if (gameState.players.length < 4) {
+        toast.error("Minimum 4 players required!");
+        return;
       }
 
-      return {
-        ...player,
-        word,
-        role,
-        isEliminated: false,
-      };
-    });
+      const wordPairs = [
+        ["Dog", "Cat"],
+        ["Pizza", "Burger"],
+        ["Beach", "Mountain"],
+        ["Coffee", "Tea"],
+        ["Car", "Bus"],
+        ["Sun", "Moon"],
+      ];
+      
+      const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
+      const [majorityWord, undercoverWord] = randomPair;
 
-    // Generate speaking order after roles are assigned
-    const speakingOrder = generateSpeakingOrder(updatedPlayers);
+      const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
+      const numUndercover = Math.floor(gameState.players.length / 4);
+      const hasMrWhite = gameState.players.length >= 5;
 
-    console.log("Game started with players:", updatedPlayers);
+      const updatedPlayers = shuffledPlayers.map((player, index) => {
+        let role: PlayerRole = "civilian";
+        let word = majorityWord;
 
-    setGameState((prev) => ({
-      ...prev,
-      players: updatedPlayers,
-      speakingOrder,
-      phase: "wordReveal",
-      majorityWord,
-      undercoverWord,
-    }));
+        if (hasMrWhite && index === 0) {
+          role = "mrwhite";
+          word = "";  // Mr. White gets no word
+        } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
+          role = "undercover";
+          word = undercoverWord;
+        }
+
+        return {
+          ...player,
+          word,
+          role,
+          isEliminated: false,
+        };
+      });
+
+      const speakingOrder = generateSpeakingOrder(updatedPlayers);
+
+      setGameState((prev) => ({
+        ...prev,
+        players: updatedPlayers,
+        speakingOrder,
+        phase: "wordReveal",
+        majorityWord,
+        undercoverWord,
+      }));
+    } else {
+      // Subsequent rounds - just update speaking order and phase
+      const speakingOrder = generateSpeakingOrder(gameState.players);
+      
+      setGameState((prev) => ({
+        ...prev,
+        speakingOrder,
+        phase: "wordReveal",
+        votingResults: {},
+      }));
+    }
   };
 
   const setPhase = (phase: GamePhase) => {

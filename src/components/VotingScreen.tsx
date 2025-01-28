@@ -11,6 +11,21 @@ export const VotingScreen = () => {
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   const hasVoted = currentPlayer && gameState.votingResults?.[currentPlayer.id];
+  const isEliminated = currentPlayer?.isEliminated;
+
+  // Don't show voting UI if player is eliminated
+  if (isEliminated) {
+    return (
+      <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
+        <h2 className="text-2xl font-bold text-center mb-4 text-gradient">Voting in Progress</h2>
+        <PlayerList 
+          players={gameState.players}
+          votingResults={gameState.votingResults}
+          currentPlayerId={peer?.id}
+        />
+      </div>
+    );
+  }
 
   const handleVote = () => {
     if (currentPlayer && selectedPlayer) {
