@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
   ],
+  base: mode === "production" ? "/your-repo-name/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
