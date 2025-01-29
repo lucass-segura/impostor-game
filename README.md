@@ -1,3 +1,5 @@
+[![Deploy](https://github.com/antebrl/undercover-word-game/actions/workflows/deploy.yml/badge.svg)](https://github.com/antebrl/undercover-word-game/actions/workflows/deploy.yml)
+
 **Use your preferred IDE**
 
 Follow these steps:
