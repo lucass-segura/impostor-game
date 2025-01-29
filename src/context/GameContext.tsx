@@ -54,7 +54,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
     const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
     
-    return [...shuffledNonWhite, ...shuffledWhite];
+    // Return only the IDs in the speaking order
+    return [...shuffledNonWhite, ...shuffledWhite].map(player => player.id);
   };
 
   const startGame = () => {
@@ -110,16 +111,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         phase: "wordReveal",
         majorityWord,
         undercoverWord,
+        currentRound: 1,
       }));
     } else {
-      // Subsequent rounds - just update speaking order and phase
-      const speakingOrder = generateSpeakingOrder(gameState.players);
-      
+      // Subsequent rounds - just update speaking order, phase, and increment round
       setGameState((prev) => ({
         ...prev,
-        speakingOrder,
+        speakingOrder: generateSpeakingOrder(prev.players),
         phase: "wordReveal",
         votingResults: {},
+        currentRound: prev.currentRound + 1,
       }));
     }
   };

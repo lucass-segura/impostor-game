@@ -27,6 +27,13 @@ export const WordReveal = () => {
     );
   }
 
+  // Convert speaking order IDs to player objects
+  const speakingOrderPlayers = gameState.speakingOrder
+    ? gameState.speakingOrder
+        .map(id => gameState.players.find(p => p.id === id))
+        .filter((p): p is NonNullable<typeof p> => p !== undefined)
+    : [];
+
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-4 text-white">Your Word</h2>
@@ -51,7 +58,7 @@ export const WordReveal = () => {
       <div className="mt-8 space-y-4">
         <h3 className="text-xl font-semibold text-white text-center">Speaking Order</h3>
         <PlayerList 
-          players={gameState.speakingOrder || []}
+          players={speakingOrderPlayers}
           currentPlayerId={peer.id}
           speakingOrder={true}
         />
