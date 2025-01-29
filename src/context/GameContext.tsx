@@ -43,9 +43,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const generateSpeakingOrder = (players: Player[]) => {
+    // Only include non-eliminated players in speaking order
+    const activePlayers = players.filter(p => !p.isEliminated);
+    
     // Filter out eliminated players and Mr. White players
-    const nonWhitePlayers = players.filter(p => !p.isEliminated && p.role !== "mrwhite");
-    const whitePlayers = players.filter(p => !p.isEliminated && p.role === "mrwhite");
+    const nonWhitePlayers = activePlayers.filter(p => p.role !== "mrwhite");
+    const whitePlayers = activePlayers.filter(p => p.role === "mrwhite");
     
     // Shuffle non-white players
     const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
