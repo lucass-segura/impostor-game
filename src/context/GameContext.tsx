@@ -19,7 +19,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const [gameState, setGameState] = useState<GameState>({
     players: [],
     phase: "setup",
-    currentRound: 1,
+    currentRound: 0,
     majorityWord: "",
     undercoverWord: "",
   });
@@ -59,7 +59,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startGame = () => {
-    if (gameState.currentRound === 1) {
+    
+    if (gameState.currentRound === 0) {
       // First round - assign roles and words
       if (gameState.players.length < 4) {
         toast.error("Minimum 4 players required!");

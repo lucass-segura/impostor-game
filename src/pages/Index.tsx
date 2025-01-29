@@ -18,12 +18,12 @@ const GameContent = () => {
   }
 
   // Show GameSetup only if we're in setup phase and it's the first round
-  if (gameState.phase === "setup" && gameState.currentRound === 1) {
+  if (gameState.phase === "setup" && gameState.currentRound === 0) {
     return <GameSetup />;
   }
 
   // Show GameLobby if we're in setup phase but not the first round
-  if (gameState.phase === "setup" && gameState.currentRound > 1) {
+  if (gameState.phase === "setup" && gameState.currentRound >= 1) {
     return <GameLobby />;
   }
 

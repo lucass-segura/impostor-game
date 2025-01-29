@@ -1,11 +1,18 @@
 import { useGame } from "../context/GameContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { usePeer } from "@/context/PeerContext";
 
 export const Results = () => {
   const { gameState, setPhase } = useGame();
+  const { peer } = usePeer();
   
-  const eliminatedPlayer = gameState.players.find(p => p.isEliminated);
+  const currentPlayer = gameState.players.find(p => p.id === peer?.id);
+  const eliminatedPlayer = gameState.players
+    .filter(p => gameState.speakingOrder.includes(p.id))
+    .find(p => p.isEliminated);
+
+  const currentPlayerGotEliminated = eliminatedPlayer.id === currentPlayer?.id;
   
   const handleContinue = () => {
     setPhase("discussion");
@@ -18,17 +25,17 @@ export const Results = () => {
       {eliminatedPlayer && (
         <Card className="p-6 text-center glass-morphism">
           <h3 className="text-xl font-bold mb-4 text-white">
-            {eliminatedPlayer.name} was eliminated!
+            {currentPlayerGotEliminated ? "You have been eliminated" : `${eliminatedPlayer.name} was eliminated!`}
           </h3>
           <p className="text-lg mb-2 text-white">
-            They were a{" "}
+            {currentPlayerGotEliminated ? "You" : "They"} were a{" "}
             <span className="font-bold text-primary">
               {eliminatedPlayer.role === "mrwhite" 
                 ? "Mr. White" 
                 : eliminatedPlayer.role}
             </span>
           </p>
-          {eliminatedPlayer.role !== "mrwhite" && (
+          {eliminatedPlayer.role !== "mrwhite" && currentPlayer?.isEliminated && !currentPlayerGotEliminated && (
             <p className="text-white/80">
               Their word was: {eliminatedPlayer.word}
             </p>
