@@ -23,6 +23,7 @@ export const GameEnd = () => {
               {gameState.winner === "civilian" && "Civilians Win!"}
               {gameState.winner === "undercover" && "Undercover Wins!"}
               {gameState.winner === "mrwhite" && "Mr. White Wins!"}
+              {gameState.winner === "infiltrators" && "Infiltrators Win!"}
             </h2>
           </div>
 

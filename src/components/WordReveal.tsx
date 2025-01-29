@@ -67,7 +67,8 @@ export const WordReveal = () => {
       {isHost && (
         <Button 
           onClick={handleStartVoting} 
-          className="w-full bg-secondary hover:bg-secondary/90"
+          size="lg"
+          className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
         >
           Start Voting
         </Button>

@@ -23,6 +23,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     currentRound: 0,
     majorityWord: "",
     undercoverWord: "",
+    mrWhiteGuess: undefined,
   });
 
   const addPlayer = (name: string, id: string) => {
@@ -52,8 +53,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return [...shuffledNonWhite, ...shuffledWhite].map(player => player.id);
   };
 
-  const checkGameEnd = () => {
-    const alivePlayers = gameState.players.filter(p => !p.isEliminated);
+  const checkGameEnd = (players: Player[]) => {
+    const alivePlayers = players.filter(p => !p.isEliminated);
     const aliveCivilians = alivePlayers.filter(p => p.role === "civilian");
     const aliveUndercovers = alivePlayers.filter(p => p.role === "undercover");
     const aliveMrWhites = alivePlayers.filter(p => p.role === "mrwhite");
@@ -62,7 +63,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       return "civilian";
     }
 
-    if (aliveCivilians.length === 1 && aliveUndercovers.length > 0) {
+    if (aliveCivilians.length <= 1 && aliveUndercovers.length > 0) {
+      if(aliveMrWhites.length > 0) {
+        return "infiltrators";
+      }
       return "undercover";
     }
 
@@ -122,6 +126,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         majorityWord,
         undercoverWord,
         currentRound: 1,
+        mrWhiteGuess: undefined,
       }));
     } else {
       setGameState((prev) => ({
@@ -130,6 +135,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         phase: "wordReveal",
         votingResults: {},
         currentRound: prev.currentRound + 1,
+        mrWhiteGuess: undefined,
       }));
     }
   };
@@ -165,27 +171,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             ...prev,
             players: updatedPlayers,
             votingResults: {},
-            phase: "mrwhiteGuess",
-            lastEliminatedId: eliminatedId
+            phase: "results",
+            lastEliminatedId: eliminatedId,
           };
         }
 
-        const gameWinner = checkGameEnd();
-        if (gameWinner) {
-          return {
-            ...prev,
-            players: updatedPlayers,
-            phase: "gameEnd",
-            winner: gameWinner,
-            lastEliminatedId: eliminatedId
-          };
-        }
 
+        const gameWinner = checkGameEnd(updatedPlayers);
         return {
           ...prev,
           players: updatedPlayers,
           votingResults: {},
-          phase: "results",
+          phase: gameWinner ? "gameEnd" : "results",
+          winner: gameWinner || undefined,
           lastEliminatedId: eliminatedId
         };
       }
@@ -198,20 +196,24 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const submitMrWhiteGuess = (guess: string) => {
-    if (guess.toLowerCase() === gameState.majorityWord.toLowerCase()) {
-      setGameState(prev => ({
-        ...prev,
-        phase: "gameEnd",
-        winner: "mrwhite"
-      }));
-    } else {
-      const gameWinner = checkGameEnd();
-      setGameState(prev => ({
-        ...prev,
-        phase: gameWinner ? "gameEnd" : "results",
-        winner: gameWinner || undefined
-      }));
-    }
+    setGameState((prev) => {
+      if (guess.toLowerCase() === prev.majorityWord.toLowerCase()) {
+        return {
+          ...prev,
+          phase: "gameEnd",
+          winner: "mrwhite",
+          mrWhiteGuess: guess
+        };
+      } else {
+        const gameWinner = checkGameEnd(prev.players);
+        return {
+          ...prev,
+          phase: gameWinner ? "gameEnd" : "results",
+          winner: gameWinner || undefined,
+          mrWhiteGuess: guess
+        };
+      }
+    });
   };
 
   const resetGame = () => {

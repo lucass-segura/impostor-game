@@ -8,7 +8,7 @@ export type Player = {
   isEliminated?: boolean;
 };
 
-export type GamePhase = "setup" | "wordReveal" | "discussion" | "voting" | "results" | "mrwhiteGuess" | "gameEnd";
+export type GamePhase = "setup" | "wordReveal" | "discussion" | "voting" | "results" | "gameEnd";
 
 export type GameState = {
   players: Player[];
@@ -19,6 +19,6 @@ export type GameState = {
   votingResults?: Record<string, string>;
   speakingOrder?: string[];
   lastEliminatedId?: string;
-  winner?: PlayerRole;
+  winner?: string;
   mrWhiteGuess?: string;  // Added this property
 };

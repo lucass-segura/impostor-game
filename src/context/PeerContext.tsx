@@ -22,7 +22,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const { gameState, setGameState, addPlayer, submitVote } = useGame();
+  const { gameState, setGameState, addPlayer, submitVote, submitMrWhiteGuess } = useGame();
 
   useEffect(() => {
     const newPeer = new Peer();
@@ -50,16 +50,26 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
       conn.on("data", (data: any) => {
         console.log("Received data:", data);
-        if (data.type === "JOIN_GAME") {
-          console.log("New player joining:", data.username, "with peer ID:", conn.peer);
-          addPlayer(data.username, conn.peer);
-          conn.send({ type: "GAME_STATE", state: gameState });
-        } else if (data.type === "GAME_STATE") {
-          console.log("Received game state:", data.state);
-          setGameState(data.state);
-        } else if (data.type === "SUBMIT_VOTE") {
-          console.log("Received vote:", data);
-          submitVote(data.voterId, data.targetId);
+        switch (data.type) {
+          case "JOIN_GAME":
+            console.log("New player joining:", data.username, "with peer ID:", conn.peer);
+            addPlayer(data.username, conn.peer);
+            conn.send({ type: "GAME_STATE", state: gameState });
+            break;
+          case "GAME_STATE":
+            console.log("Received game state:", data.state);
+            setGameState(data.state);
+            break;
+          case "SUBMIT_VOTE":
+            console.log("Received vote:", data);
+            submitVote(data.voterId, data.targetId);
+            break;
+          case "MR_WHITE_GUESS":
+            console.log("Received vote:", data);
+            submitMrWhiteGuess(data.guess);
+            break;
+          default:
+            console.log("Unknown data type:", data.type);
         }
       });
 

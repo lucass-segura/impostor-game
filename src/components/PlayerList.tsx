@@ -32,6 +32,7 @@ export const PlayerList = ({
 
   const hasCurrentPlayerVoted = currentPlayerId && votingResults?.[currentPlayerId];
   const displayPlayers = speakingOrder ? players : (!showEliminated ? players.filter(p => !p.isEliminated) : players);
+  const isCurrentPlayerEliminated = !players.some(player => player.id === currentPlayerId);
 
   return (
     <Card className="p-6 glass-morphism">
@@ -43,10 +44,11 @@ export const PlayerList = ({
         
         <div className="space-y-2">
           {displayPlayers.map((player, index) => {
+            // Don't let player vote himself
             if (!speakingOrder && currentPlayerId && !hasCurrentPlayerVoted && player.id === currentPlayerId) return null;
             
             const votes = getVotesForPlayer(player.id);
-            const showVotes = hasCurrentPlayerVoted && votes.length > 0;
+            const showVotes = (hasCurrentPlayerVoted || isCurrentPlayerEliminated) && votes.length > 0;
             const isLastEliminated = player.id === lastEliminatedId;
             
             return (

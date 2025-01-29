@@ -14,12 +14,11 @@ export const Results = () => {
   
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   const eliminatedPlayer = gameState.players
-    .filter(p => gameState.speakingOrder.includes(p.id))
-    .find(p => p.isEliminated);
+    .find(p => p.id === gameState.lastEliminatedId);
 
   const currentPlayerGotEliminated = eliminatedPlayer?.id === currentPlayer?.id;
   const isMrWhiteGuessing = eliminatedPlayer?.role === "mrwhite" && !gameState.mrWhiteGuess;
-  const canContinue = isHost && (!isMrWhiteGuessing || gameState.mrWhiteGuess);
+  const canContinue = isHost && !isMrWhiteGuessing;
   
   const handleGuessSubmit = () => {
     if (!guess.trim()) {
@@ -27,13 +26,15 @@ export const Results = () => {
       return;
     }
     
-    // Send guess to host
-    sendToHost({
-      type: "MR_WHITE_GUESS",
-      guess: guess.trim()
-    });
-    
-    submitMrWhiteGuess(guess.trim());
+    if(isHost) {
+      submitMrWhiteGuess(guess.trim());
+    } else {
+      // Send guess to host
+      sendToHost({
+        type: "MR_WHITE_GUESS",
+        guess: guess.trim()
+      });
+    }  
   };
 
   const handleContinue = () => {

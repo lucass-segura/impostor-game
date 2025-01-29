@@ -8,7 +8,6 @@ import { WordReveal } from "../components/WordReveal";
 import { MultiplayerSetup } from "../components/MultiplayerSetup";
 import { VotingScreen } from "../components/VotingScreen";
 import { Results } from "../components/Results";
-import { MrWhiteGuess } from "../components/MrWhiteGuess";
 import { GameEnd } from "../components/GameEnd";
 
 const GameContent = () => {
@@ -34,8 +33,6 @@ const GameContent = () => {
       return <VotingScreen />;
     case "results":
       return <Results />;
-    case "mrwhiteGuess":
-      return <MrWhiteGuess />;
     case "gameEnd":
       return <GameEnd />;
     default:
