@@ -8,6 +8,8 @@ import { WordReveal } from "../components/WordReveal";
 import { MultiplayerSetup } from "../components/MultiplayerSetup";
 import { VotingScreen } from "../components/VotingScreen";
 import { Results } from "../components/Results";
+import { MrWhiteGuess } from "../components/MrWhiteGuess";
+import { GameEnd } from "../components/GameEnd";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -17,12 +19,10 @@ const GameContent = () => {
     return <MultiplayerSetup />;
   }
 
-  // Show GameSetup only if we're in setup phase and it's the first round
   if (gameState.phase === "setup" && gameState.currentRound === 0) {
     return <GameSetup />;
   }
 
-  // Show GameLobby if we're in setup phase but not the first round
   if (gameState.phase === "setup" && gameState.currentRound >= 1) {
     return <GameLobby />;
   }
@@ -34,6 +34,10 @@ const GameContent = () => {
       return <VotingScreen />;
     case "results":
       return <Results />;
+    case "mrwhiteGuess":
+      return <MrWhiteGuess />;
+    case "gameEnd":
+      return <GameEnd />;
     default:
       return <GameLobby />;
   }

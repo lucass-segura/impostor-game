@@ -10,6 +10,7 @@ interface GameContextType {
   startGame: () => void;
   setPhase: (phase: GamePhase) => void;
   submitVote: (voterId: string, targetId: string) => void;
+  submitMrWhiteGuess: (guess: string) => void;
   resetGame: () => void;
 }
 
@@ -43,25 +44,33 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const generateSpeakingOrder = (players: Player[]) => {
-    // Only include non-eliminated players in speaking order
     const activePlayers = players.filter(p => !p.isEliminated);
-    
-    // Filter out eliminated players and Mr. White players
     const nonWhitePlayers = activePlayers.filter(p => p.role !== "mrwhite");
     const whitePlayers = activePlayers.filter(p => p.role === "mrwhite");
-    
-    // Shuffle non-white players
     const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
     const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
-    
-    // Return only the IDs in the speaking order
     return [...shuffledNonWhite, ...shuffledWhite].map(player => player.id);
   };
 
+  const checkGameEnd = () => {
+    const alivePlayers = gameState.players.filter(p => !p.isEliminated);
+    const aliveCivilians = alivePlayers.filter(p => p.role === "civilian");
+    const aliveUndercovers = alivePlayers.filter(p => p.role === "undercover");
+    const aliveMrWhites = alivePlayers.filter(p => p.role === "mrwhite");
+
+    if (aliveUndercovers.length === 0 && aliveMrWhites.length === 0) {
+      return "civilian";
+    }
+
+    if (aliveCivilians.length === 1 && aliveUndercovers.length > 0) {
+      return "undercover";
+    }
+
+    return null;
+  };
+
   const startGame = () => {
-    
     if (gameState.currentRound === 0) {
-      // First round - assign roles and words
       if (gameState.players.length < 4) {
         toast.error("Minimum 4 players required!");
         return;
@@ -89,7 +98,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (hasMrWhite && index === 0) {
           role = "mrwhite";
-          word = "";  // Mr. White gets no word
+          word = "";  
         } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
           role = "undercover";
           word = undercoverWord;
@@ -115,7 +124,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         currentRound: 1,
       }));
     } else {
-      // Subsequent rounds - just update speaking order, phase, and increment round
       setGameState((prev) => ({
         ...prev,
         speakingOrder: generateSpeakingOrder(prev.players),
@@ -131,58 +139,79 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const submitVote = (voterId: string, targetId: string) => {
-    console.log(`Vote submitted: ${voterId} voted for ${targetId}`);
     setGameState((prev) => {
-      // Create new voting results object with the new vote
-      const newVotingResults = { 
-        ...(prev.votingResults || {}), 
-        [voterId]: targetId 
-      };
-      
-      // Get active (non-eliminated) players
+      const newVotingResults = { ...(prev.votingResults || {}), [voterId]: targetId };
       const activePlayers = prev.players.filter(p => !p.isEliminated);
-      
-      // Check if all active players have voted
       const allVoted = activePlayers.every(p => p.id in newVotingResults);
-      
-      console.log("Current votes:", newVotingResults);
-      console.log("All players voted:", allVoted);
-      
+
       if (allVoted) {
-        // Count votes
         const voteCount: Record<string, number> = {};
         Object.values(newVotingResults).forEach(id => {
           voteCount[id] = (voteCount[id] || 0) + 1;
         });
-        
-        // Find player with most votes
+
         const eliminatedId = Object.entries(voteCount).reduce((a, b) => 
           (voteCount[a[0]] > voteCount[b[0]] ? a : b)
         )[0];
-        
-        // Update eliminated status
+
         const updatedPlayers = prev.players.map(p => 
           p.id === eliminatedId ? { ...p, isEliminated: true } : p
         );
-        
+
         const eliminatedPlayer = updatedPlayers.find(p => p.id === eliminatedId);
-        if (eliminatedPlayer) {
-          toast.info(`${eliminatedPlayer.name} has been eliminated!`);
-        }
         
+        if (eliminatedPlayer?.role === "mrwhite") {
+          return {
+            ...prev,
+            players: updatedPlayers,
+            votingResults: {},
+            phase: "mrwhiteGuess",
+            lastEliminatedId: eliminatedId
+          };
+        }
+
+        const gameWinner = checkGameEnd();
+        if (gameWinner) {
+          return {
+            ...prev,
+            players: updatedPlayers,
+            phase: "gameEnd",
+            winner: gameWinner,
+            lastEliminatedId: eliminatedId
+          };
+        }
+
         return {
           ...prev,
           players: updatedPlayers,
           votingResults: {},
-          phase: "results"
+          phase: "results",
+          lastEliminatedId: eliminatedId
         };
       }
-      
+
       return {
         ...prev,
         votingResults: newVotingResults
       };
     });
+  };
+
+  const submitMrWhiteGuess = (guess: string) => {
+    if (guess.toLowerCase() === gameState.majorityWord.toLowerCase()) {
+      setGameState(prev => ({
+        ...prev,
+        phase: "gameEnd",
+        winner: "mrwhite"
+      }));
+    } else {
+      const gameWinner = checkGameEnd();
+      setGameState(prev => ({
+        ...prev,
+        phase: gameWinner ? "gameEnd" : "results",
+        winner: gameWinner || undefined
+      }));
+    }
   };
 
   const resetGame = () => {
@@ -205,6 +234,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         startGame,
         setPhase,
         submitVote,
+        submitMrWhiteGuess,
         resetGame,
       }}
     >
