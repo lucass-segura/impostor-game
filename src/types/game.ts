@@ -20,4 +20,5 @@ export type GameState = {
   speakingOrder?: string[];
   lastEliminatedId?: string;
   winner?: PlayerRole;
+  mrWhiteGuess?: string;  // Added this property
 };
