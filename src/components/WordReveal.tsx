@@ -31,7 +31,7 @@ export const WordReveal = () => {
   const speakingOrderPlayers = gameState.speakingOrder
     ? gameState.speakingOrder
         .map(id => gameState.players.find(p => p.id === id))
-        .filter((p): p is NonNullable<typeof p> => p !== undefined)
+        .filter((p): p is NonNullable<typeof p> => p !== undefined && !p.isEliminated)
     : [];
 
   return (
