@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
   ],
-  base: mode === "production" ? "/your-repo-name/" : "/",
+  base: mode === "production" ? "/undercover-word-game/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
