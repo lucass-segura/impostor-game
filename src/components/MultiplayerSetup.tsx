@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Users, UserPlus, Copy } from "lucide-react";
+import { Users, UserPlus, Copy, Link } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 export const MultiplayerSetup = () => {
   const { hostGame, joinGame, hostId } = usePeer();
@@ -12,6 +13,15 @@ export const MultiplayerSetup = () => {
   const [showHostForm, setShowHostForm] = useState(false);
   const [joinId, setJoinId] = useState("");
   const [username, setUsername] = useState("");
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const gameId = searchParams.get("gameId");
+    if (gameId) {
+      setJoinId(gameId);
+      setShowJoinForm(true);
+    }
+  }, [searchParams]);
 
   const handleJoin = () => {
     if (!joinId.trim()) {
@@ -33,10 +43,11 @@ export const MultiplayerSetup = () => {
     hostGame(username.trim());
   };
 
-  const handleCopyId = () => {
+  const handleCopyLink = () => {
     if (hostId) {
-      navigator.clipboard.writeText(hostId);
-      toast.success("Game ID copied to clipboard!");
+      const gameLink = `${window.location.origin}${import.meta.env.BASE_URL}?gameId=${hostId}`;
+      navigator.clipboard.writeText(gameLink);
+      toast.success("Game link copied to clipboard!");
     }
   };
 
@@ -45,16 +56,16 @@ export const MultiplayerSetup = () => {
       <Card className="max-w-md mx-auto p-6 space-y-6 animate-fade-in glass-morphism">
         <h2 className="text-2xl font-bold text-center text-gradient">Game Lobby</h2>
         <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
-          <span className="text-sm text-muted-foreground">Game ID:</span>
+          <span className="text-sm text-muted-foreground">Game Link:</span>
           <div className="flex items-center gap-2">
             <code className="bg-secondary/30 px-3 py-1 rounded">{hostId}</code>
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleCopyId}
+              onClick={handleCopyLink}
               className="hover:bg-secondary/20"
             >
-              <Copy className="h-4 w-4" />
+              <Link className="h-4 w-4" />
             </Button>
           </div>
         </div>
