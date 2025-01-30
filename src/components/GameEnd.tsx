@@ -1,4 +1,5 @@
 import { useGame } from "../context/GameContext";
+import { usePeer } from "../context/PeerContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, User } from "lucide-react";
