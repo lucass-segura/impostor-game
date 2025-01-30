@@ -58,7 +58,7 @@ const Index = () => {
         href="https://github.com/antebrl/undercover-word-game"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 md:bottom-8 md:right-8"
+        className="fixed bottom-4 left-4 md:bottom-8 md:left-8"
       >
         <Button
           variant="secondary"
