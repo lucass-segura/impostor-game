@@ -9,6 +9,8 @@ import { MultiplayerSetup } from "../components/MultiplayerSetup";
 import { VotingScreen } from "../components/VotingScreen";
 import { Results } from "../components/Results";
 import { GameEnd } from "../components/GameEnd";
+import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -52,6 +54,20 @@ const Index = () => {
           </PeerProvider>
         </GameProvider>
       </div>
+      <a
+        href="https://github.com/antebrl/undercover-word-game"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 right-4 md:bottom-8 md:right-8"
+      >
+        <Button
+          variant="secondary"
+          className="glass-morphism hover:bg-white/10 transition-all duration-300"
+        >
+          <Github className="mr-2 h-4 w-4" />
+          View on GitHub
+        </Button>
+      </a>
     </div>
   );
 };
