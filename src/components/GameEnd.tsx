@@ -1,9 +1,11 @@
 import { useGame } from "../context/GameContext";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Trophy, User } from "lucide-react";
 
 export const GameEnd = () => {
-  const { gameState } = useGame();
+  const { gameState, resetGame } = useGame();
+  const { isHost } = usePeer();
   
   const getWinnerPlayers = () => {
     return gameState.players.filter(p => p.role === gameState.winner);
@@ -13,7 +15,7 @@ export const GameEnd = () => {
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <div className="text-center space-y-4">
         <Trophy className="w-16 h-16 text-yellow-400 mx-auto" />
-        <h1 className="text-4xl font-bold text-white">Game Over!</h1>
+        <h1 className="text-4xl font-bold text-white text-center">Game Over!</h1>
       </div>
 
       <Card className="p-6 glass-morphism">
@@ -45,6 +47,16 @@ export const GameEnd = () => {
           </div>
         </div>
       </Card>
+
+      {isHost && (
+        <Button
+          onClick={resetGame}
+          size="lg"
+          className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
+        >
+          Start New Round
+        </Button>
+      )}
     </div>
   );
 };

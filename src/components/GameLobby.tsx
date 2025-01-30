@@ -15,7 +15,7 @@ export const GameLobby = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-white mb-8">Game Lobby</h1>
+      <h1 className="text-4xl font-bold text-white mb-8 text-center">Game Lobby</h1>
       
       <PlayerList 
         players={gameState.players} 
