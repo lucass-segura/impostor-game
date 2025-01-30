@@ -217,13 +217,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetGame = () => {
-    setGameState({
-      players: [],
-      phase: "setup",
-      currentRound: 1,
-      majorityWord: "",
-      undercoverWord: "",
-    });
+    setGameState((prev) => {
+      const players = prev.players.map(p => ({ ...p, isEliminated: false }));
+      return {
+        players: players,
+        phase: "setup",
+        currentRound: 0,
+        majorityWord: "",
+        undercoverWord: "",
+        mrWhiteGuess: undefined,
+    }});
   };
 
   return (
