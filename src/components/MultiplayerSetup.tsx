@@ -8,12 +8,12 @@ import { Users, UserPlus, Copy, Link } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 export const MultiplayerSetup = () => {
-  const { hostGame, joinGame, hostId } = usePeer();
-  const [showJoinForm, setShowJoinForm] = useState(false);
-  const [showHostForm, setShowHostForm] = useState(false);
-  const [joinId, setJoinId] = useState("");
-  const [username, setUsername] = useState("");
   const [searchParams] = useSearchParams();
+  const { hostGame, joinGame, hostId } = usePeer();
+  const [showJoinForm, setShowJoinForm] = useState(searchParams.get("gameId") != undefined);
+  const [showHostForm, setShowHostForm] = useState(false);
+  const [joinId, setJoinId] = useState(showJoinForm ? searchParams.get("gameId") : "");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const gameId = searchParams.get("gameId");
@@ -42,36 +42,6 @@ export const MultiplayerSetup = () => {
     }
     hostGame(username.trim());
   };
-
-  const handleCopyLink = () => {
-    if (hostId) {
-      const gameLink = `${window.location.origin}${import.meta.env.BASE_URL}?gameId=${hostId}`;
-      navigator.clipboard.writeText(gameLink);
-      toast.success("Game link copied to clipboard!");
-    }
-  };
-
-  if (hostId) {
-    return (
-      <Card className="max-w-md mx-auto p-6 space-y-6 animate-fade-in glass-morphism">
-        <h2 className="text-2xl font-bold text-center text-gradient">Game Lobby</h2>
-        <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
-          <span className="text-sm text-muted-foreground">Game Link:</span>
-          <div className="flex items-center gap-2">
-            <code className="bg-secondary/30 px-3 py-1 rounded">{hostId}</code>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCopyLink}
-              className="hover:bg-secondary/20"
-            >
-              <Link className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <Card className="max-w-md mx-auto p-6 space-y-6 animate-fade-in glass-morphism">
