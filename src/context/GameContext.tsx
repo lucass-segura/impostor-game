@@ -34,10 +34,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error("Maximum 10 players allowed!");
       return;
     }
-    setGameState((prev) => ({
-      ...prev,
-      players: [...prev.players, { id, name }],
-    }));
+    setGameState((prev) => {
+      const newPlayers = [...prev.players, { id, name }];
+      return {
+        ...prev,
+        players: newPlayers,
+        roleDistribution: calculateDefaultDistribution(newPlayers.length),
+      };
+    });
   };
 
   const removePlayer = (id: string) => {
@@ -266,3 +270,4 @@ export const useGame = () => {
   }
   return context;
 };
+
