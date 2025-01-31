@@ -11,7 +11,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
   ],
-  base: mode === "production" ? "/undercover-word-game/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
