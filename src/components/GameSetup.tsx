@@ -45,14 +45,8 @@ export const GameSetup = () => {
     let newUndercovers = field === 'undercovers' ? Math.max(0, currentDist.undercovers + change) : currentDist.undercovers;
     let newMrWhites = field === 'mrWhites' ? Math.max(0, currentDist.mrWhites + change) : currentDist.mrWhites;
     
-    // Validate the distribution
     const totalSpecialRoles = newUndercovers + newMrWhites;
     const newCivilians = playerCount - totalSpecialRoles;
-
-    if (totalSpecialRoles > newCivilians || newUndercovers >= newCivilians || totalSpecialRoles === 0) {
-      toast.error("Invalid role distribution!");
-      return;
-    }
 
     updateRoleDistribution({
       civilians: newCivilians,
@@ -60,6 +54,8 @@ export const GameSetup = () => {
       mrWhites: newMrWhites,
     });
   };
+
+  const hasEnoughPlayers = gameState.players.length >= 4;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8 animate-fade-in">
@@ -82,7 +78,9 @@ export const GameSetup = () => {
       </div>
 
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
-        <PlayerList players={gameState.players} />
+        <div className={isHost ? '' : 'col-span-2'}>
+          <PlayerList players={gameState.players} />
+        </div>
 
         {isHost && gameState.players.length > 0 && (
           <div className="space-y-6">
@@ -141,13 +139,21 @@ export const GameSetup = () => {
               </div>
             </Card>
 
-            <Button
-              onClick={startGame}
-              size="lg"
-              className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
-            >
-              Start Game ({gameState.players.length} players)
-            </Button>
+            <div className="space-y-2">
+              {!hasEnoughPlayers && (
+                <div className="text-red-500 text-sm text-center mb-2">
+                  At least 4 players are required to start the game
+                </div>
+              )}
+              <Button
+                onClick={startGame}
+                size="lg"
+                disabled={!hasEnoughPlayers}
+                className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200 disabled:opacity-50"
+              >
+                Start Game ({gameState.players.length} players)
+              </Button>
+            </div>
           </div>
         )}
       </div>
