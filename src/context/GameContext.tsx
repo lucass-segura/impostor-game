@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { GameState, Player, GamePhase, PlayerRole } from "../types/game";
 import { toast } from "sonner";
+import { RoleDistribution, calculateDefaultDistribution } from "../config/roleDistribution";
 
 interface GameContextType {
   gameState: GameState;
@@ -12,6 +13,7 @@ interface GameContextType {
   submitVote: (voterId: string, targetId: string) => void;
   submitMrWhiteGuess: (guess: string) => void;
   resetGame: () => void;
+  updateRoleDistribution: (distribution: RoleDistribution) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     majorityWord: "",
     undercoverWord: "",
     mrWhiteGuess: undefined,
+    roleDistribution: calculateDefaultDistribution(4),
   });
 
   const addPlayer = (name: string, id: string) => {
@@ -93,17 +96,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const [majorityWord, undercoverWord] = randomPair;
 
       const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
-      const numUndercover = Math.floor(gameState.players.length / 4);
-      const hasMrWhite = gameState.players.length >= 5;
+      const { undercovers, mrWhites } = gameState.roleDistribution;
 
       const updatedPlayers = shuffledPlayers.map((player, index) => {
         let role: PlayerRole = "civilian";
         let word = majorityWord;
 
-        if (hasMrWhite && index === 0) {
+        if (index < mrWhites) {
           role = "mrwhite";
-          word = "";  
-        } else if (index < numUndercover + (hasMrWhite ? 1 : 0)) {
+          word = "";
+        } else if (index < mrWhites + undercovers) {
           role = "undercover";
           word = undercoverWord;
         }
@@ -176,7 +178,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
           };
         }
 
-
         const gameWinner = checkGameEnd(updatedPlayers);
         return {
           ...prev,
@@ -226,7 +227,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         majorityWord: "",
         undercoverWord: "",
         mrWhiteGuess: undefined,
-    }});
+        roleDistribution: calculateDefaultDistribution(players.length),
+      };
+    });
+  };
+
+  const updateRoleDistribution = (distribution: RoleDistribution) => {
+    setGameState(prev => ({
+      ...prev,
+      roleDistribution: distribution
+    }));
   };
 
   return (
@@ -241,6 +251,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         submitVote,
         submitMrWhiteGuess,
         resetGame,
+        updateRoleDistribution,
       }}
     >
       {children}
