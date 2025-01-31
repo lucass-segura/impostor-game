@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../types/game";
 import { toast } from "sonner";
 import { calculateDefaultDistribution } from "../config/roleDistribution";
+import wordPairs from "@/config/wordPairs";
 
 interface GameContextType {
   gameState: GameState;
@@ -85,16 +86,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       if (gameState.players.length < 4) {
         toast.error("Minimum 4 players required!");
         return;
-      }
-
-      const wordPairs = [
-        ["Dog", "Cat"],
-        ["Pizza", "Burger"],
-        ["Beach", "Mountain"],
-        ["Coffee", "Tea"],
-        ["Car", "Bus"],
-        ["Sun", "Moon"],
-      ];
+      }   
       
       const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
       const [majorityWord, undercoverWord] = randomPair;

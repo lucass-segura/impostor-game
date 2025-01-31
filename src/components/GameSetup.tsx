@@ -132,7 +132,7 @@ export const GameSetup = () => {
             <Button
               onClick={startGame}
               size="lg"
-              disabled={!hasEnoughPlayers}
+              disabled={!isHost || !hasEnoughPlayers}
               className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200 disabled:opacity-50"
             >
               Start Game ({gameState.players.length} players)
