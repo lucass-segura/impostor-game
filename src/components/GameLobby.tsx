@@ -7,6 +7,7 @@ import { PlayerList } from "./PlayerList";
 import { calculateDefaultDistribution } from "../config/roleDistribution";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export const GameLobby = () => {
   const { gameState, startGame, updateRoleDistribution } = useGame();
