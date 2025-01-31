@@ -28,7 +28,7 @@ export const GameLobby = () => {
           size="lg"
           className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
         >
-          Start next round ({gameState.players.length} players)
+          Start next round ({gameState.players.filter(player => !player.isEliminated).length} players)
         </Button>
       )}
     </div>

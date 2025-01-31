@@ -9,6 +9,9 @@ export const GameEnd = () => {
   const { isHost } = usePeer();
   
   const getWinnerPlayers = () => {
+    if(gameState.winner === "infiltrators") {
+      return gameState.players.filter(p => p.role === "undercover" || p.role === "mrwhite");
+    }
     return gameState.players.filter(p => p.role === gameState.winner);
   };
 

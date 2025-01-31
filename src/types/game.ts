@@ -1,5 +1,10 @@
 export type PlayerRole = "civilian" | "undercover" | "mrwhite";
 
+export type RoleDistribution = {
+  undercovers: number;
+  mrWhites: number;
+};
+
 export type Player = {
   id: string;
   name: string;
@@ -21,9 +26,5 @@ export type GameState = {
   lastEliminatedId?: string;
   winner?: string;
   mrWhiteGuess?: string;
-  roleDistribution: {
-    civilians: number;
-    undercovers: number;
-    mrWhites: number;
-  };
+  roleDistribution: RoleDistribution;
 };

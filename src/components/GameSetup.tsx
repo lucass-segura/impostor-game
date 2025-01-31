@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { PlayerList } from "./PlayerList";
 import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { distributionMeetsLimits } from "@/config/roleDistribution";
 
 export const GameSetup = () => {
   const { gameState, startGame, updateRoleDistribution } = useGame();
@@ -20,42 +21,8 @@ export const GameSetup = () => {
     }
   };
 
-  const canIncrease = (field: 'undercovers' | 'mrWhites') => {
-    const { civilians, undercovers, mrWhites } = gameState.roleDistribution;
-    const totalSpecialRoles = undercovers + mrWhites;
-    
-    if (field === 'undercovers') {
-      return totalSpecialRoles + 1 <= civilians && undercovers + 1 < civilians;
-    } else {
-      return totalSpecialRoles + 1 <= civilians;
-    }
-  };
-
-  const canDecrease = (field: 'undercovers' | 'mrWhites') => {
-    const { undercovers, mrWhites } = gameState.roleDistribution;
-    return field === 'undercovers' 
-      ? undercovers > 0 && (undercovers + mrWhites > 1)
-      : mrWhites > 0 && (undercovers + mrWhites > 1);
-  };
-
-  const handleDistributionChange = (field: 'undercovers' | 'mrWhites', change: number) => {
-    const playerCount = gameState.players.length;
-    const currentDist = gameState.roleDistribution;
-    
-    let newUndercovers = field === 'undercovers' ? Math.max(0, currentDist.undercovers + change) : currentDist.undercovers;
-    let newMrWhites = field === 'mrWhites' ? Math.max(0, currentDist.mrWhites + change) : currentDist.mrWhites;
-    
-    const totalSpecialRoles = newUndercovers + newMrWhites;
-    const newCivilians = playerCount - totalSpecialRoles;
-
-    updateRoleDistribution({
-      civilians: newCivilians,
-      undercovers: newUndercovers,
-      mrWhites: newMrWhites,
-    });
-  };
-
   const hasEnoughPlayers = gameState.players.length >= 4;
+  const roleDistribution = gameState.roleDistribution;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8 animate-fade-in">
@@ -78,84 +45,100 @@ export const GameSetup = () => {
       </div>
 
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
-        <div className={isHost ? '' : 'col-span-2'}>
-          <PlayerList players={gameState.players} />
-        </div>
+        <PlayerList players={gameState.players} />
 
-        {isHost && gameState.players.length > 0 && (
-          <div className="space-y-6">
-            <Card className="p-6 bg-white/5">
-              <h3 className="text-lg font-semibold text-white mb-6">Role Distribution</h3>
-              <div className="space-y-6">
-                <div className="text-center text-white/70">
-                  {gameState.roleDistribution.civilians} civilians
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDistributionChange('undercovers', -1)}
-                    disabled={!canDecrease('undercovers')}
-                    className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <div className="flex-1 text-center text-white">
-                    {gameState.roleDistribution.undercovers} undercovers
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDistributionChange('undercovers', 1)}
-                    disabled={!canIncrease('undercovers')}
-                    className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDistributionChange('mrWhites', -1)}
-                    disabled={!canDecrease('mrWhites')}
-                    className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <div className="flex-1 text-center text-white">
-                    {gameState.roleDistribution.mrWhites} mr whites
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDistributionChange('mrWhites', 1)}
-                    disabled={!canIncrease('mrWhites')}
-                    className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+        <div className="space-y-6">
+          <Card className="p-6 bg-white/5">
+            <h3 className="text-lg font-semibold text-white mb-6">Role Distribution</h3>
+            <div className="space-y-6">
+              <div className="text-center text-white/70">
+                {gameState.players.length - roleDistribution.mrWhites - roleDistribution.undercovers} civilians
               </div>
-            </Card>
-
-            <div className="space-y-2">
-              {!hasEnoughPlayers && (
-                <div className="text-red-500 text-sm text-center mb-2">
-                  At least 4 players are required to start the game
+              <div className="flex items-center justify-between gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateRoleDistribution({ ...roleDistribution, undercovers: roleDistribution.undercovers - 1 })}
+                  disabled={!isHost || !distributionMeetsLimits(
+                    { ...roleDistribution, 
+                      undercovers: roleDistribution.undercovers - 1 
+                    }, 
+                    gameState.players.length)
+                  }
+                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="flex-1 text-center text-white">
+                  {roleDistribution.undercovers} undercovers
                 </div>
-              )}
-              <Button
-                onClick={startGame}
-                size="lg"
-                disabled={!hasEnoughPlayers}
-                className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200 disabled:opacity-50"
-              >
-                Start Game ({gameState.players.length} players)
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateRoleDistribution({ ...roleDistribution, undercovers: roleDistribution.undercovers + 1 })}
+                  disabled={!isHost || !distributionMeetsLimits(
+                    { ...roleDistribution, 
+                      undercovers: roleDistribution.undercovers + 1 
+                    }, 
+                    gameState.players.length)
+                  }
+                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateRoleDistribution({ ...roleDistribution, mrWhites: roleDistribution.mrWhites - 1 })}
+                  disabled={!isHost || !distributionMeetsLimits(
+                    { ...roleDistribution, 
+                      mrWhites: roleDistribution.mrWhites - 1 
+                    }, 
+                    gameState.players.length)
+                  }
+                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="flex-1 text-center text-white">
+                  {roleDistribution.mrWhites} mr whites
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateRoleDistribution({ ...roleDistribution, mrWhites: roleDistribution.mrWhites + 1 })}
+                  disabled={!isHost || !distributionMeetsLimits(
+                    { ...roleDistribution, 
+                      mrWhites: roleDistribution.mrWhites + 1 
+                    }, 
+                    gameState.players.length)
+                  }
+                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
+          </Card>
+
+          <div className="space-y-2">
+            {!hasEnoughPlayers && (
+              <div className="text-red-500 text-sm text-center mb-2">
+                At least 4 players are required to start the game
+              </div>
+            )}
+            <Button
+              onClick={startGame}
+              size="lg"
+              disabled={!hasEnoughPlayers}
+              className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200 disabled:opacity-50"
+            >
+              Start Game ({gameState.players.length} players)
+            </Button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

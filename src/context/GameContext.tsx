@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
-import { GameState, Player, GamePhase, PlayerRole } from "../types/game";
+import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../types/game";
 import { toast } from "sonner";
-import { RoleDistribution, calculateDefaultDistribution } from "../config/roleDistribution";
+import { calculateDefaultDistribution } from "../config/roleDistribution";
 
 interface GameContextType {
   gameState: GameState;
@@ -231,7 +231,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         majorityWord: "",
         undercoverWord: "",
         mrWhiteGuess: undefined,
-        roleDistribution: calculateDefaultDistribution(players.length),
+        roleDistribution: prev.roleDistribution,
       };
     });
   };
