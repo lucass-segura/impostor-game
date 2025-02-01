@@ -1,4 +1,4 @@
-export type PlayerRole = "civilian" | "undercover" | "mrwhite";
+export type PlayerRole = "civilian" | "undercover" | "mrwhite" | "spectator";
 
 export type RoleDistribution = {
   undercovers: number;

@@ -38,7 +38,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     setGameState((prev) => {
-      const newPlayers = [...prev.players, { id, name }];
+      let role = undefined;
+      let isEliminated = undefined;
+      if(prev.phase !== "setup") {
+        role = "spectator";
+        isEliminated = true;
+      }
+
+      const newPlayers = [...prev.players, { id, name, role, isEliminated}];
       return {
         ...prev,
         players: newPlayers,
