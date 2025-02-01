@@ -22,7 +22,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const { gameState, removePlayer } = useGame();
+  const { gameState, setGameState, addPlayer, removePlayer, submitMrWhiteGuess, submitVote } = useGame();
 
   useEffect(() => {
     const newPeer = new Peer();
@@ -37,11 +37,24 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error("Connection error occurred");
     });
 
+    //Host connection events
     newPeer.on("connection", (conn) => {
       console.log("Incoming connection from:", conn.peer);
+
+      // Monitor ICE connection state - [unexpected disconnect handling]
+      const pc = conn.peerConnection;
+      pc.oniceconnectionstatechange = () => {
+        console.log("ICE state:", pc.iceConnectionState);
+        if (["disconnected", "failed"].includes(pc.iceConnectionState)) {
+          console.log("ICE disconnect detected");
+          removePlayer(conn.peer);
+          conn.close();
+        }
+      };
       
       conn.on("open", () => {
         setConnections(prev => ({ ...prev, [conn.peer]: conn }));
+
         if (gameState) {
           conn.send({ type: "GAME_STATE", state: gameState });
         }
@@ -49,16 +62,15 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
 
       conn.on("close", () => {
         console.log("Connection closed with:", conn.peer);
+
+        removePlayer(conn.peer);
+        toast.error(`${gameState.players.find(p => p.id === conn.peer)?.name || 'A player'} disconnected`);
+
         setConnections(prev => {
           const newConnections = { ...prev };
           delete newConnections[conn.peer];
           return newConnections;
         });
-        
-        if (isHost) {
-          removePlayer(conn.peer);
-          toast.error(`${gameState.players.find(p => p.id === conn.peer)?.name || 'A player'} disconnected`);
-        }
       });
 
       conn.on("data", (data: any) => {
@@ -87,6 +99,16 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       });
     });
 
+    //Cleanup on host disconnect
+    const cleanupHost = () => {
+      if (!newPeer.disconnected) {
+        console.log("Disconnecting peer");
+        newPeer.destroy();
+      }
+      window.removeEventListener('beforeunload', cleanupHost);
+    };
+    window.addEventListener('beforeunload', cleanupHost);
+
     return () => {
       newPeer.destroy();
     };
@@ -106,7 +128,17 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     
     const conn = peer.connect(hostId);
     console.log("Joining game with peer ID:", peer.id);
+
+    const cleanupClient = () => {
+      if (!peer.disconnected) {
+        console.log("Disconnecting peer");
+        peer.destroy();
+      }
+      window.removeEventListener('beforeunload', cleanupClient);
+    };
+    window.addEventListener('beforeunload', cleanupClient);
     
+    //Client connection events
     conn.on("open", () => {
       setConnections(prev => ({ ...prev, [hostId]: conn }));
       setHostId(hostId);
@@ -120,6 +152,18 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Setting received game state:", data.state);
         setGameState(data.state);
       }
+    });
+
+    conn.on("close", () => {
+      console.log("Connection closed with host");
+      setConnections(prev => {
+        const newConnections = { ...prev };
+        delete newConnections[hostId];
+        return newConnections;
+      });
+      setHostId(null);
+      setIsHost(false);
+      toast.error("Host closed connection");
     });
   };
 

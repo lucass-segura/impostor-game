@@ -59,42 +59,24 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const player = prev.players.find(p => p.id === id);
       if (!player) return prev;
 
-      // If game hasn't started or player was already eliminated, just remove them
-      if (prev.phase === "setup" || player.isEliminated) {
-        return {
-          ...prev,
-          players: prev.players.filter(p => p.id !== id)
-        };
-      }
+      const newPlayers = prev.players.filter(p => p.id !== id);
+      const newSpeakingOrder = prev.speakingOrder?.filter(s => s !== id);
 
-      // Check win conditions if game is in progress
-      const remainingPlayers = prev.players.filter(p => !p.isEliminated && p.id !== id);
-      const remainingCivilians = remainingPlayers.filter(p => p.role === "civilian");
-      const remainingUndercovers = remainingPlayers.filter(p => p.role === "undercover");
-      const remainingMrWhites = remainingPlayers.filter(p => p.role === "mrwhite");
-
-      if (remainingUndercovers.length === 0 && remainingMrWhites.length === 0) {
+      const gameEnd = checkGameEnd(newPlayers);
+      if(gameEnd) {
         return {
           ...prev,
           phase: "gameEnd",
-          winner: "civilian",
-          players: prev.players.filter(p => p.id !== id)
-        };
-      } 
-      
-      if (remainingCivilians.length <= 1 && (remainingUndercovers.length > 0 || remainingMrWhites.length > 0)) {
-        return {
-          ...prev,
-          phase: "gameEnd",
-          winner: remainingMrWhites.length > 0 ? "infiltrators" : "undercover",
-          players: prev.players.filter(p => p.id !== id)
+          winner: gameEnd,
+          players: newPlayers,
+          speakingOrder: newSpeakingOrder,
         };
       }
-
-      // No win condition met, just remove the player
+  
       return {
         ...prev,
-        players: prev.players.filter(p => p.id !== id)
+        players: newPlayers,
+        speakingOrder: newSpeakingOrder,
       };
     });
   };
@@ -115,6 +97,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const aliveMrWhites = alivePlayers.filter(p => p.role === "mrwhite");
 
     if (aliveUndercovers.length === 0 && aliveMrWhites.length === 0) {
+      if(aliveCivilians.length === 0) return null;
       return "civilian";
     }
 

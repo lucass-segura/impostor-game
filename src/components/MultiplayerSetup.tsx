@@ -22,7 +22,7 @@ export const MultiplayerSetup = () => {
     if (gameId) {
       setJoinId(gameId);
       setShowJoinForm(true);
-    }
+    }  
   }, [searchParams]);
 
   const handleJoin = () => {
