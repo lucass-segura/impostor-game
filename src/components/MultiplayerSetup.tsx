@@ -6,8 +6,10 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Users, UserPlus, Copy, Link } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export const MultiplayerSetup = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { hostGame, joinGame, hostId } = usePeer();
   const [showJoinForm, setShowJoinForm] = useState(searchParams.get("gameId") != undefined);
@@ -46,7 +48,7 @@ export const MultiplayerSetup = () => {
   return (
     <Card className="max-w-md mx-auto p-6 space-y-6 animate-fade-in glass-morphism">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-center text-gradient">Welcome to Undercover</h2>
+        <h2 className="text-2xl font-bold text-center text-gradient">{t('welcome')}</h2>
 
         {!showHostForm && !showJoinForm && (
           <div className="space-y-4">
