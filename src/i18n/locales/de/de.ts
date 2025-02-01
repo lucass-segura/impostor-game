@@ -1,8 +1,8 @@
+import wordPairs from "./wordPairs";
+
 export default {
   translation: {
     welcome: "Willkommen bei Undercover",
-    wordPairs: {
-      // Structure ready for future word pair translations
-    }
+    wordPairs: wordPairs
   }
 };

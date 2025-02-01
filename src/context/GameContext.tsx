@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../types/game";
 import { toast } from "sonner";
 import { calculateDefaultDistribution } from "../config/roleDistribution";
-import wordPairs from "@/config/wordPairs";
+import { useTranslation } from "react-i18next";
 
 interface GameContextType {
   gameState: GameState;
@@ -20,6 +20,8 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useTranslation();
+
   const [gameState, setGameState] = useState<GameState>({
     players: [],
     phase: "setup",
@@ -88,6 +90,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }   
       
+      const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
       const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
       const [majorityWord, undercoverWord] = randomPair;
 
