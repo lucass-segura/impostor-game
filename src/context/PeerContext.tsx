@@ -22,7 +22,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const { gameState, setGameState, addPlayer, submitVote, submitMrWhiteGuess } = useGame();
+  const { gameState, removePlayer } = useGame();
 
   useEffect(() => {
     const newPeer = new Peer();
@@ -42,9 +42,22 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       
       conn.on("open", () => {
         setConnections(prev => ({ ...prev, [conn.peer]: conn }));
-        
         if (gameState) {
           conn.send({ type: "GAME_STATE", state: gameState });
+        }
+      });
+
+      conn.on("close", () => {
+        console.log("Connection closed with:", conn.peer);
+        setConnections(prev => {
+          const newConnections = { ...prev };
+          delete newConnections[conn.peer];
+          return newConnections;
+        });
+        
+        if (isHost) {
+          removePlayer(conn.peer);
+          toast.error(`${gameState.players.find(p => p.id === conn.peer)?.name || 'A player'} disconnected`);
         }
       });
 
@@ -52,7 +65,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Received data:", data);
         switch (data.type) {
           case "JOIN_GAME":
-            console.log("New player joining:", data.username, "with peer ID:", conn.peer);
+            console.log("New player joining:", data.username);
             addPlayer(data.username, conn.peer);
             conn.send({ type: "GAME_STATE", state: gameState });
             break;
@@ -65,21 +78,12 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             submitVote(data.voterId, data.targetId);
             break;
           case "MR_WHITE_GUESS":
-            console.log("Received vote:", data);
+            console.log("Received Mr. White guess:", data);
             submitMrWhiteGuess(data.guess);
             break;
           default:
             console.log("Unknown data type:", data.type);
         }
-      });
-
-      conn.on("close", () => {
-        console.log("Connection closed with:", conn.peer);
-        setConnections(prev => {
-          const newConnections = { ...prev };
-          delete newConnections[conn.peer];
-          return newConnections;
-        });
       });
     });
 
