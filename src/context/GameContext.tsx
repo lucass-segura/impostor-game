@@ -20,7 +20,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation();  
 
   const [gameState, setGameState] = useState<GameState>({
     players: [],

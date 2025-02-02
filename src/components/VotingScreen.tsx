@@ -1,13 +1,19 @@
 import { useGame } from "../context/GameContext";
 import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlayerList } from "./PlayerList";
+import { useSound } from "@/context/SoundContext";
 
 export const VotingScreen = () => {
   const { gameState, submitVote } = useGame();
   const { peer, isHost, sendToHost } = usePeer();
+  const { playSound } = useSound();
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
+
+  useEffect(() => {
+    playSound("/sounds/switch-page.mp3");
+  }, []);
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   const hasVoted = currentPlayer && gameState.votingResults?.[currentPlayer.id];
@@ -32,6 +38,7 @@ export const VotingScreen = () => {
 
   const handleVote = () => {
     if (currentPlayer && selectedPlayer) {
+      //playSound("/sounds/vote.mp3");
       if (isHost) {
         submitVote(currentPlayer.id, selectedPlayer);
       } else {

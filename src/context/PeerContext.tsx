@@ -3,6 +3,7 @@ import { Peer, DataConnection } from "peerjs";
 import { useGame } from "./GameContext";
 import { toast } from "sonner";
 import { GameState } from "../types/game";
+import { useSound } from "./SoundContext";
 
 interface PeerContextType {
   peer: Peer | null;
@@ -18,6 +19,8 @@ interface PeerContextType {
 const PeerContext = createContext<PeerContextType | undefined>(undefined);
 
 export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
+  const { playSound } = useSound();
+  
   const [peer, setPeer] = useState<Peer | null>(null);
   const [connections, setConnections] = useState<Record<string, DataConnection>>({});
   const [hostId, setHostId] = useState<string | null>(null);
@@ -78,6 +81,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
         switch (data.type) {
           case "JOIN_GAME":
             console.log("New player joining:", data.username);
+            playSound("/sounds/player-joined.mp3");
             addPlayer(data.username, conn.peer);
             conn.send({ type: "GAME_STATE", state: gameState });
             break;

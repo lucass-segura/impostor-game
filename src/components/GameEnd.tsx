@@ -3,10 +3,30 @@ import { usePeer } from "../context/PeerContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, User } from "lucide-react";
+import { useSound } from "@/context/SoundContext";
+import { useEffect } from "react";
 
 export const GameEnd = () => {
   const { gameState, resetGame } = useGame();
-  const { isHost } = usePeer();
+  const { peer, isHost } = usePeer();
+  const { playSound } = useSound();
+
+  const currentPlayer = gameState.players.find(p => p.id === peer?.id);
+
+  useEffect(() => {
+    switch (gameState.winner) {
+      case "civilian":
+        playSound("/sounds/civilians-win.mp3");
+        break;
+      case "infiltrators":
+      case "undercover":
+        playSound("/sounds/undercover-win.mp3");
+        break;
+      case "mrwhite":
+        playSound("/sounds/mrwhite-win.mp3");
+        break;
+    }
+  }, []);
   
   const getWinnerPlayers = () => {
     if(gameState.winner === "infiltrators") {
@@ -18,7 +38,11 @@ export const GameEnd = () => {
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <div className="text-center space-y-4">
-        <Trophy className="w-16 h-16 text-yellow-400 mx-auto" />
+        {gameState.winner === currentPlayer?.role ? (
+          <Trophy className="w-16 h-16 text-yellow-400 mx-auto" />
+        ) : (
+          <User className="w-16 h-16 text-red-400 mx-auto" />
+        )}
         <h1 className="text-4xl font-bold text-white text-center">Game Over!</h1>
       </div>
 

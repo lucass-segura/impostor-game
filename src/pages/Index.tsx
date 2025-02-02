@@ -11,6 +11,7 @@ import { Results } from "../components/Results";
 import { GameEnd } from "../components/GameEnd";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
+import { SoundProvider } from "@/context/SoundContext";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -46,13 +47,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent via-secondary to-accent text-white">
       <div className="container mx-auto px-4 py-8">
-        <GameProvider>
-          <PeerProvider>
-            <div className="max-w-4xl mx-auto">
-              <GameContent />
-            </div>
-          </PeerProvider>
-        </GameProvider>
+        <SoundProvider>
+          <GameProvider>
+            <PeerProvider>
+              <div className="max-w-4xl mx-auto">
+                <GameContent />
+              </div>
+            </PeerProvider>
+          </GameProvider>
+        </SoundProvider>
       </div>
       <a
         href="https://github.com/antebrl/undercover-word-game"

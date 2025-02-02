@@ -3,18 +3,38 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePeer } from "@/context/PeerContext";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Send, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useSound } from "@/context/SoundContext";
 
 export const Results = () => {
   const { gameState, setPhase, submitMrWhiteGuess } = useGame();
   const { peer, isHost, sendToHost } = usePeer();
+  const { playSound } = useSound();
   const [guess, setGuess] = useState("");
   
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   const eliminatedPlayer = gameState.players
     .find(p => p.id === gameState.lastEliminatedId);
+
+  useEffect(() => {
+    if(gameState.mrWhiteGuess) {
+      return playSound("/sounds/mrwhite-wrong-guess.mp3");
+    }
+
+    switch (eliminatedPlayer?.role) {
+      case "mrwhite":
+        playSound("/sounds/mrwhite-eliminated.mp3");
+        break;
+      case "undercover":
+        playSound("/sounds/undercover-eliminated.mp3");
+        break;
+      case "civilian":
+        playSound("/sounds/civilian-eliminated.mp3");
+        break;
+    }
+  }, []);
 
   const currentPlayerGotEliminated = eliminatedPlayer?.id === currentPlayer?.id;
   const isMrWhiteGuessing = eliminatedPlayer?.role === "mrwhite" && !gameState.mrWhiteGuess;

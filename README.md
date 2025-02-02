@@ -31,9 +31,9 @@ A small group of Impostors has appeared in the game. They have a different word 
 There are 3 groups in the game: Civilians, Undercover and Mr.White. The majority of the residents are the peace-loving Civilians. There are up to two groups of Impostors: Undercover and Mr.White.
 
 <p align="center">
-  <img src="./docs/ressources/civilians-explanation.png" width="200">
-  <img src="./docs/ressources/undercover-explanation.png" width="200">
-  <img src="./docs/ressources/mrwhite-explanation.png" width="200">
+  <img src="./docs/ressources/civilians-explanation.png" width="300">
+  <img src="./docs/ressources/undercover-explanation.png" width="300">
+  <img src="./docs/ressources/mrwhite-explanation.png" width="300">
 </p>
 
 ----

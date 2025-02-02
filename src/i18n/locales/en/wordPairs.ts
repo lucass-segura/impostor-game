@@ -172,11 +172,6 @@ const wordPairs = [
     ['Harvard', 'MIT'],
     ['Oxford', 'Highschool'],
     ['CIA', 'FBI'],
-    ['Karl Marx', 'Adam Smith'],
-    ['Hannibal', 'Alexander the Great'],
-    ['Joan of Arc', 'Cleopatra'],
-    ['Julius Caesar', 'Augustus'],
-    ['Genghis Khan', 'Attila the Hun'],
     ['Winston Churchill', 'Franklin Roosevelt'],
     ['Hitler', 'Stalin'],
     ['Mahatma Gandhi', 'Martin Luther King Jr.'],
@@ -308,6 +303,7 @@ const wordPairs = [
     ['Swimming Pool', 'Beach'],
     ['Glass', 'Cup'],
     ['Job', 'Hobby'],
+    ['Jesus', 'Santa Claus'],
 ];
 
 export default wordPairs;
