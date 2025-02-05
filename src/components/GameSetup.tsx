@@ -45,7 +45,10 @@ export const GameSetup = () => {
       </div>
 
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
-        <PlayerList players={gameState.players} />
+        <PlayerList 
+          players={gameState.players} 
+          showScores={gameState.currentRound > 0}
+        />
 
         <div className="space-y-6">
           <Card className="p-6 bg-white/5">

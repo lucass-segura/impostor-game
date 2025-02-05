@@ -7,13 +7,38 @@ import { useSound } from "@/context/SoundContext";
 import { useEffect } from "react";
 
 export const GameEnd = () => {
-  const { gameState, resetGame } = useGame();
+  const { gameState, resetGame, setGameState } = useGame();
   const { peer, isHost } = usePeer();
   const { playSound } = useSound();
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
 
   useEffect(() => {
+    // Update scores for winners
+    const updatedPlayers = gameState.players.map(player => {
+      const currentScore = player.score || 0;
+      let pointsToAdd = 0;
+
+      if (gameState.winner === "civilian" && player.role === "civilian") {
+        pointsToAdd = 2;
+      } else if (gameState.winner === "undercover" && player.role === "undercover") {
+        pointsToAdd = 10;
+      } else if (gameState.winner === "mrwhite" && player.role === "mrwhite") {
+        pointsToAdd = 6;
+      } else if (gameState.winner === "infiltrators") {
+        if (player.role === "undercover") pointsToAdd = 10;
+        if (player.role === "mrwhite") pointsToAdd = 6;
+      }
+
+      return {
+        ...player,
+        score: currentScore + pointsToAdd,
+        lastScore: pointsToAdd > 0 ? pointsToAdd : undefined
+      };
+    });
+
+    setGameState({ ...gameState, players: updatedPlayers });
+
     switch (gameState.winner) {
       case "civilian":
         playSound("/sounds/civilians-win.mp3");

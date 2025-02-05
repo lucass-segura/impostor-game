@@ -1,3 +1,4 @@
+
 export type PlayerRole = "civilian" | "undercover" | "mrwhite" | "spectator";
 
 export type RoleDistribution = {
@@ -11,6 +12,8 @@ export type Player = {
   word?: string;
   role?: PlayerRole;
   isEliminated?: boolean;
+  score?: number;
+  lastScore?: number;
 };
 
 export type GamePhase = "setup" | "wordReveal" | "discussion" | "voting" | "results" | "gameEnd";
