@@ -12,7 +12,7 @@ export const VotingScreen = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
 
   useEffect(() => {
-    playSound("/sounds/switch-page.mp3");
+    playSound("/sounds/new-page.mp3");
   }, []);
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
@@ -37,6 +37,7 @@ export const VotingScreen = () => {
   }
 
   const handleVote = () => {
+    playSound("/sounds/submit-vote.wav");
     if (currentPlayer && selectedPlayer) {
       //playSound("/sounds/vote.mp3");
       if (isHost) {

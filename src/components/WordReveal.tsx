@@ -3,10 +3,21 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePeer } from "../context/PeerContext";
 import { PlayerList } from "./PlayerList";
+import { useEffect } from "react";
+import { useSound } from "@/context/SoundContext";
 
 export const WordReveal = () => {
   const { gameState, setPhase } = useGame();
   const { peer, isHost } = usePeer();
+  const { playSound } = useSound();
+
+  useEffect(() => {
+    if(gameState.currentRound === 1) {
+      playSound("/sounds/word-reveal.mp3");
+    } else {
+      playSound("/sounds/new-page.mp3");
+    }
+  }, []);
 
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
 
