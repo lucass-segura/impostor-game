@@ -304,6 +304,7 @@ const wordPairs = [
     ['Glass', 'Cup'],
     ['Job', 'Hobby'],
     ['Jesus', 'Santa Claus'],
+    ['bra', 'bikini'],
 ];
 
 export default wordPairs;

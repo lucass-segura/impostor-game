@@ -101,11 +101,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       return "civilian";
     }
 
-    if (aliveCivilians.length <= 1 && aliveUndercovers.length > 0) {
-      if(aliveMrWhites.length > 0) {
-        return "infiltrators";
+    if (aliveCivilians.length <= 1) {
+      if(aliveUndercovers.length > 0) {
+        if(aliveMrWhites.length > 0) {
+          return "infiltrators";
+        }
+        return "undercover";
       }
-      return "undercover";
+      return "mrwhite";
     }
 
     return null;
