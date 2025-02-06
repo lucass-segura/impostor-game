@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Trophy, User } from "lucide-react";
 import { useSound } from "@/context/SoundContext";
 import { useEffect } from "react";
+import { MrWhiteGuess } from "./shared/MrWhiteGuess";
 
 export const GameEnd = () => {
   const { gameState, resetGame, setGameState } = useGame();
@@ -33,7 +34,6 @@ export const GameEnd = () => {
       return {
         ...player,
         score: currentScore + pointsToAdd,
-        lastScore: pointsToAdd > 0 ? pointsToAdd : undefined
       };
     });
 
@@ -71,6 +71,8 @@ export const GameEnd = () => {
         <h1 className="text-4xl font-bold text-white text-center">Game Over!</h1>
       </div>
 
+      <MrWhiteGuess />
+
       <Card className="p-6 glass-morphism">
         <div className="space-y-4">
           <div className="text-center">
@@ -84,18 +86,22 @@ export const GameEnd = () => {
 
           <div className="space-y-3">
             {getWinnerPlayers().map((player) => (
-              <div 
+                <div 
                 key={player.id}
                 className="flex items-center gap-3 p-3 rounded-lg bg-white/5"
-              >
-                <User className="w-5 h-5 text-primary" />
+                >
+                {player.isEliminated ? (
+                  <User className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <User className="w-5 h-5 text-primary" />
+                )}
                 <div>
                   <p className="text-lg text-white">{player.name}</p>
                   <p className="text-sm text-white/70">
-                    {player.role}{player.word && ` - Word: ${player.word}`}
+                  {player.role}{player.word && ` - Word: ${player.word}`}
                   </p>
                 </div>
-              </div>
+                </div>
             ))}
           </div>
         </div>

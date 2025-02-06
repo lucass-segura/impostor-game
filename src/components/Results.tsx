@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { usePeer } from "@/context/PeerContext";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { Send, CheckCircle, XCircle } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { useSound } from "@/context/SoundContext";
+import { MrWhiteGuess } from "./shared/MrWhiteGuess";
 
 export const Results = () => {
   const { gameState, setPhase, submitMrWhiteGuess } = useGame();
@@ -61,26 +62,6 @@ export const Results = () => {
     setPhase("discussion");
   };
 
-  const renderMrWhiteGuessResult = () => {
-    if (!gameState.mrWhiteGuess) return null;
-
-    const isCorrect = gameState.mrWhiteGuess.toLowerCase() === gameState.majorityWord.toLowerCase();
-    return (
-      <div className={`mt-4 p-4 rounded-lg ${isCorrect ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-        <div className="flex items-center gap-2">
-          {isCorrect ? (
-            <CheckCircle className="text-green-500" />
-          ) : (
-            <XCircle className="text-red-500" />
-          )}
-          <p className="text-white">
-            Mr. White guessed: <span className="font-bold">{gameState.mrWhiteGuess}</span>
-          </p>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-4 text-white">Results</h2>
@@ -124,7 +105,7 @@ export const Results = () => {
             </div>
           )}
 
-          {renderMrWhiteGuessResult()}
+          <MrWhiteGuess/>
         </Card>
       )}
 

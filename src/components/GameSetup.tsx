@@ -3,7 +3,7 @@ import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
 import { Link, Hash, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
-import { PlayerList } from "./PlayerList";
+import { PlayerList } from "./shared/PlayerList";
 import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { distributionMeetsLimits } from "@/config/roleDistribution";
@@ -27,8 +27,8 @@ export const GameSetup = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-white mb-8 text-center">Game Setup</h1>
-      
-      <div 
+
+      <div
         onClick={handleCopyLink}
         className="glass-morphism p-6 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group"
       >
@@ -45,9 +45,9 @@ export const GameSetup = () => {
       </div>
 
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
-        <PlayerList 
-          players={gameState.players} 
-          showScores={gameState.currentRound > 0}
+        <PlayerList
+          players={gameState.players}
+          showScores={gameState.players.some(p => p.score > 0)}
         />
 
         <div className="space-y-6">
@@ -63,9 +63,10 @@ export const GameSetup = () => {
                   size="icon"
                   onClick={() => updateRoleDistribution({ ...roleDistribution, undercovers: roleDistribution.undercovers - 1 })}
                   disabled={!isHost || !distributionMeetsLimits(
-                    { ...roleDistribution, 
-                      undercovers: roleDistribution.undercovers - 1 
-                    }, 
+                    {
+                      ...roleDistribution,
+                      undercovers: roleDistribution.undercovers - 1
+                    },
                     gameState.players.length)
                   }
                   className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
@@ -80,9 +81,10 @@ export const GameSetup = () => {
                   size="icon"
                   onClick={() => updateRoleDistribution({ ...roleDistribution, undercovers: roleDistribution.undercovers + 1 })}
                   disabled={!isHost || !distributionMeetsLimits(
-                    { ...roleDistribution, 
-                      undercovers: roleDistribution.undercovers + 1 
-                    }, 
+                    {
+                      ...roleDistribution,
+                      undercovers: roleDistribution.undercovers + 1
+                    },
                     gameState.players.length)
                   }
                   className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
@@ -96,9 +98,10 @@ export const GameSetup = () => {
                   size="icon"
                   onClick={() => updateRoleDistribution({ ...roleDistribution, mrWhites: roleDistribution.mrWhites - 1 })}
                   disabled={!isHost || !distributionMeetsLimits(
-                    { ...roleDistribution, 
-                      mrWhites: roleDistribution.mrWhites - 1 
-                    }, 
+                    {
+                      ...roleDistribution,
+                      mrWhites: roleDistribution.mrWhites - 1
+                    },
                     gameState.players.length)
                   }
                   className="bg-white/10 hover:bg-white/20 disabled:opacity-50"
@@ -113,9 +116,10 @@ export const GameSetup = () => {
                   size="icon"
                   onClick={() => updateRoleDistribution({ ...roleDistribution, mrWhites: roleDistribution.mrWhites + 1 })}
                   disabled={!isHost || !distributionMeetsLimits(
-                    { ...roleDistribution, 
-                      mrWhites: roleDistribution.mrWhites + 1 
-                    }, 
+                    {
+                      ...roleDistribution,
+                      mrWhites: roleDistribution.mrWhites + 1
+                    },
                     gameState.players.length)
                   }
                   className="bg-white/10 hover:bg-white/20 disabled:opacity-50"

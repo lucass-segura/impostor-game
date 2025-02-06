@@ -3,6 +3,7 @@ import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../t
 import { toast } from "sonner";
 import { calculateDefaultDistribution } from "../config/roleDistribution";
 import { useTranslation } from "react-i18next";
+import { shuffle } from "@/lib/utils";
 
 interface GameContextType {
   gameState: GameState;
@@ -33,11 +34,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const addPlayer = (name: string, id: string) => {
-    if (gameState.players.length >= 10) {
-      toast.error("Maximum 10 players allowed!");
-      return;
-    }
     setGameState((prev) => {
+      if (prev.players.length >= 10) {
+        toast.error("Maximum 10 players allowed!");
+        return;
+      }
+
+      const score = 0;
       let role = undefined;
       let isEliminated = undefined;
       if(prev.phase !== "setup") {
@@ -45,7 +48,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         isEliminated = true;
       }
 
-      const newPlayers = [...prev.players, { id, name, role, isEliminated}];
+      const newPlayers = [...prev.players, { id, name, role, isEliminated, score}];
       return {
         ...prev,
         players: newPlayers,
@@ -85,8 +88,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const activePlayers = players.filter(p => !p.isEliminated);
     const nonWhitePlayers = activePlayers.filter(p => p.role !== "mrwhite");
     const whitePlayers = activePlayers.filter(p => p.role === "mrwhite");
-    const shuffledNonWhite = [...nonWhitePlayers].sort(() => Math.random() - 0.5);
-    const shuffledWhite = [...whitePlayers].sort(() => Math.random() - 0.5);
+    const shuffledNonWhite = shuffle(nonWhitePlayers);
+    const shuffledWhite = shuffle(whitePlayers);
     return [...shuffledNonWhite, ...shuffledWhite].map(player => player.id);
   };
 
@@ -115,61 +118,63 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startGame = () => {
-    if (gameState.currentRound === 0) {
-      if (gameState.players.length < 4) {
-        toast.error("Minimum 4 players required!");
-        return;
-      }   
-      
-      const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
-      const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
-      const [majorityWord, undercoverWord] = randomPair;
+    setGameState((prev) => {
+      if (prev.currentRound === 0) {
+        if (prev.players.length < 4) {
+          toast.error("Minimum 4 players required!");
+          return;
+        }   
+        
+        const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
+        const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
+        const [majorityWord, undercoverWord] = randomPair;
 
-      const shuffledPlayers = [...gameState.players].sort(() => Math.random() - 0.5);
-      const { undercovers, mrWhites } = gameState.roleDistribution;
+        const shuffledPlayers = shuffle(prev.players);
+        const { undercovers, mrWhites } = prev.roleDistribution;
 
-      const updatedPlayers = shuffledPlayers.map((player, index) => {
-        let role: PlayerRole = "civilian";
-        let word = majorityWord;
+        const updatedPlayers = shuffledPlayers.map((player, index) => {
+          let role: PlayerRole = "civilian";
+          let word = majorityWord;
 
-        if (index < mrWhites) {
-          role = "mrwhite";
-          word = "";
-        } else if (index < mrWhites + undercovers) {
-          role = "undercover";
-          word = undercoverWord;
-        }
+          if (index < mrWhites) {
+            role = "mrwhite";
+            word = "";
+          } else if (index < mrWhites + undercovers) {
+            role = "undercover";
+            word = undercoverWord;
+          }
+
+          return {
+            ...player,
+            word,
+            role,
+            isEliminated: false,
+          };
+        });
+
+        const speakingOrder = generateSpeakingOrder(updatedPlayers);
 
         return {
-          ...player,
-          word,
-          role,
-          isEliminated: false,
+          ...prev,
+          players: updatedPlayers,
+          speakingOrder,
+          phase: "wordReveal",
+          majorityWord,
+          undercoverWord,
+          currentRound: 1,
+          mrWhiteGuess: undefined,
         };
-      });
-
-      const speakingOrder = generateSpeakingOrder(updatedPlayers);
-
-      setGameState((prev) => ({
-        ...prev,
-        players: updatedPlayers,
-        speakingOrder,
-        phase: "wordReveal",
-        majorityWord,
-        undercoverWord,
-        currentRound: 1,
-        mrWhiteGuess: undefined,
-      }));
-    } else {
-      setGameState((prev) => ({
-        ...prev,
-        speakingOrder: generateSpeakingOrder(prev.players),
-        phase: "wordReveal",
-        votingResults: {},
-        currentRound: prev.currentRound + 1,
-        mrWhiteGuess: undefined,
-      }));
-    }
+      } else {
+        return {
+          ...prev,
+          speakingOrder: generateSpeakingOrder(prev.players),
+          phase: "wordReveal",
+          votingResults: {},
+          currentRound: prev.currentRound + 1,
+          mrWhiteGuess: undefined,
+        };
+      }
+    });
   };
 
   const setPhase = (phase: GamePhase) => {

@@ -13,7 +13,6 @@ export type Player = {
   role?: PlayerRole;
   isEliminated?: boolean;
   score?: number;
-  lastScore?: number;
 };
 
 export type GamePhase = "setup" | "wordReveal" | "discussion" | "voting" | "results" | "gameEnd";

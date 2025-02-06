@@ -2,7 +2,7 @@ import { useGame } from "../context/GameContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePeer } from "../context/PeerContext";
-import { PlayerList } from "./PlayerList";
+import { PlayerList } from "./shared/PlayerList";
 import { useEffect } from "react";
 import { useSound } from "@/context/SoundContext";
 
@@ -12,7 +12,7 @@ export const WordReveal = () => {
   const { playSound } = useSound();
 
   useEffect(() => {
-    if(gameState.currentRound === 1) {
+    if (gameState.currentRound === 1) {
       playSound("/sounds/word-reveal.mp3");
     } else {
       playSound("/sounds/new-page.mp3");
@@ -41,14 +41,14 @@ export const WordReveal = () => {
   // Convert speaking order IDs to player objects
   const speakingOrderPlayers = gameState.speakingOrder
     ? gameState.speakingOrder
-        .map(id => gameState.players.find(p => p.id === id))
-        .filter((p): p is NonNullable<typeof p> => p !== undefined && !p.isEliminated)
+      .map(id => gameState.players.find(p => p.id === id))
+      .filter((p): p is NonNullable<typeof p> => p !== undefined && !p.isEliminated)
     : [];
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-4 text-white">Your Word</h2>
-      
+
       <Card className="p-6 text-center glass-morphism">
         <div className="space-y-4">
           {currentPlayer.role === "mrwhite" ? (
@@ -59,7 +59,7 @@ export const WordReveal = () => {
             </p>
           )}
           <p className="text-sm text-white/70">
-            {currentPlayer.role === "mrwhite" 
+            {currentPlayer.role === "mrwhite"
               ? "Try to blend in without knowing the word!"
               : "Remember this word but don't say it directly!"}
           </p>
@@ -68,7 +68,7 @@ export const WordReveal = () => {
 
       <div className="mt-8 space-y-4">
         <h3 className="text-xl font-semibold text-white text-center">Speaking Order</h3>
-        <PlayerList 
+        <PlayerList
           players={speakingOrderPlayers}
           currentPlayerId={peer.id}
           speakingOrder={true}
@@ -76,8 +76,8 @@ export const WordReveal = () => {
       </div>
 
       {isHost && (
-        <Button 
-          onClick={handleStartVoting} 
+        <Button
+          onClick={handleStartVoting}
           size="lg"
           className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
         >

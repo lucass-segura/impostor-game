@@ -2,7 +2,7 @@ import { useGame } from "../context/GameContext";
 import { usePeer } from "../context/PeerContext";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { PlayerList } from "./PlayerList";
+import { PlayerList } from "./shared/PlayerList";
 import { useSound } from "@/context/SoundContext";
 
 export const VotingScreen = () => {
@@ -19,15 +19,16 @@ export const VotingScreen = () => {
   const hasVoted = currentPlayer && gameState.votingResults?.[currentPlayer.id];
   const isEliminated = currentPlayer?.isEliminated;
 
-  // Filter out eliminated players for voting
-  const activePlayers = gameState.players.filter(p => !p.isEliminated);
+  // Sort players by speaking order (and filter out eliminated players)
+  const activePlayers = gameState.speakingOrder
+    .map(id => gameState.players.find(p => p.id === id));
 
   // Don't show voting UI if player is eliminated
   if (isEliminated) {
     return (
       <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
         <h2 className="text-2xl font-bold text-center mb-4 text-gradient">Voting in Progress</h2>
-        <PlayerList 
+        <PlayerList
           players={activePlayers}
           votingResults={gameState.votingResults}
           currentPlayerId={peer?.id}
@@ -55,8 +56,8 @@ export const VotingScreen = () => {
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-4 text-gradient">Vote to Eliminate</h2>
-      
-      <PlayerList 
+
+      <PlayerList
         players={activePlayers}
         selectedPlayer={selectedPlayer}
         onPlayerClick={!hasVoted ? setSelectedPlayer : undefined}
