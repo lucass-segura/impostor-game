@@ -14,6 +14,7 @@ interface GameContextType {
   setPhase: (phase: GamePhase) => void;
   submitVote: (voterId: string, targetId: string) => void;
   submitMrWhiteGuess: (guess: string) => void;
+  submitDescription: (playerId: string, description: string) => void;
   resetGame: () => void;
   updateRoleDistribution: (distribution: RoleDistribution) => void;
 }
@@ -33,11 +34,30 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     roleDistribution: calculateDefaultDistribution(4),
   });
 
+  // // Auto transition to voting after last description
+  // useEffect(() => {
+  //   if (gameState.phase === "description" && gameState.speakingOrder) {
+  //     const allPlayersDescribed = gameState.speakingOrder
+  //       .every(id => {
+  //         const player = gameState.players.find(p => p.id === id);
+  //         return player?.isEliminated || player?.description;
+  //       });
+
+  //     if (allPlayersDescribed) {
+  //       const timer = setTimeout(() => {
+  //         setGameState(prev => ({ ...prev, phase: "voting" }));
+  //       }, 10000); // 10 seconds delay
+
+  //       return () => clearTimeout(timer);
+  //     }
+  //   }
+  // }, [gameState.phase, gameState.players, gameState.speakingOrder]);
+
   const addPlayer = (name: string, id: string) => {
     setGameState((prev) => {
       if (prev.players.length >= 10) {
         toast.error("Maximum 10 players allowed!");
-        return;
+        return prev;
       }
 
       const score = 0;
@@ -122,7 +142,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       if (prev.currentRound === 0) {
         if (prev.players.length < 4) {
           toast.error("Minimum 4 players required!");
-          return;
+          return prev;
         }   
         
         const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
@@ -149,6 +169,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             word,
             role,
             isEliminated: false,
+            submittedDescription: undefined,
           };
         });
 
@@ -181,6 +202,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     setGameState((prev) => ({ ...prev, phase }));
   };
 
+  const submitDescription = (playerId: string, submittedDescription: string) => {
+    setGameState((prev) => {
+      const updatedPlayers = prev.players.map(p =>
+        p.id === playerId ? { ...p, submittedDescription } : p
+      );
+    
+      return {
+        ...prev,
+        players: updatedPlayers,
+      };
+    });
+  };
+
   const submitVote = (voterId: string, targetId: string) => {
     setGameState((prev) => {
       const newVotingResults = { ...(prev.votingResults || {}), [voterId]: targetId };
@@ -198,7 +232,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         )[0];
 
         const updatedPlayers = prev.players.map(p => 
-          p.id === eliminatedId ? { ...p, isEliminated: true } : p
+          p.id === eliminatedId ? { ...p, isEliminated: true, submittedDescription: undefined } : { ...p, submittedDescription: undefined }
         );
 
         const eliminatedPlayer = updatedPlayers.find(p => p.id === eliminatedId);
@@ -220,7 +254,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
           votingResults: {},
           phase: gameWinner ? "gameEnd" : "results",
           winner: gameWinner || undefined,
-          lastEliminatedId: eliminatedId
+          lastEliminatedId: eliminatedId,
         };
       }
 
@@ -254,7 +288,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetGame = () => {
     setGameState((prev) => {
-      const players = prev.players.map(p => ({ ...p, isEliminated: false }));
+      const players = prev.players.map(p => ({ ...p, isEliminated: false, submittedDescription: undefined }));
       return {
         players: players,
         phase: "setup",
@@ -285,6 +319,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         setPhase,
         submitVote,
         submitMrWhiteGuess,
+        submitDescription,
         resetGame,
         updateRoleDistribution,
       }}

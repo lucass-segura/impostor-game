@@ -23,7 +23,7 @@ export const PlayerList = ({
   speakingOrder,
   showEliminated,
   lastEliminatedId,
-  showScores
+  showScores,
 }: PlayerListProps) => {
   const getVotesForPlayer = (playerId: string) => {
     if (!votingResults) return [];
@@ -37,6 +37,8 @@ export const PlayerList = ({
 
   const filteredEliminatedPlayers = !showEliminated ? players.filter(p => !p.isEliminated) : players;
   const displayPlayers = speakingOrder ? players : filteredEliminatedPlayers;
+
+  const currentSpeakerIndex = speakingOrder ? displayPlayers.findIndex(p => !p.submittedDescription) : 0;
 
   return (
     <Card className="p-6 glass-morphism">
@@ -54,6 +56,7 @@ export const PlayerList = ({
             const votes = getVotesForPlayer(player.id);
             const showVotes = (hasCurrentPlayerVoted || isCurrentPlayerEliminated) && votes.length > 0;
             const isLastEliminated = player.id === lastEliminatedId;
+            const isCurrentSpeaker = speakingOrder && index === currentSpeakerIndex;
 
             return (
               <div
@@ -73,20 +76,25 @@ export const PlayerList = ({
                 {speakingOrder && (
                   <div className={`
                     w-8 h-8 rounded-full flex items-center justify-center
-                    ${index === 0 ? 'bg-primary' : 'bg-white/10'}
-                    ${index === 0 ? 'text-white' : 'text-white/80'}
+                    ${isCurrentSpeaker ? 'bg-primary' : 'bg-white/10'}
+                    ${isCurrentSpeaker ? 'text-white' : 'text-white/80'}
                   `}>
                     {index + 1}
                   </div>
                 )}
                 <div className="flex-1 flex items-center justify-between">
                   <div>
-                    <span className={`text-lg ${index === 0 && speakingOrder ? 'text-primary font-bold' : 'text-white'}`}>
+                    <span className={`text-lg ${isCurrentSpeaker ? 'text-primary font-bold' : 'text-white'}`}>
                       {player.name}
                       {player.id === currentPlayerId && (
                         <span className="text-primary ml-2">(You)</span>
                       )}
                     </span>
+                    {player.submittedDescription && (
+                      <p className="text-sm text-white/70 mt-1">
+                        {player.submittedDescription}
+                      </p>
+                    )}
                     {showVotes && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {votes.map((voterName, vIndex) => (
