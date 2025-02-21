@@ -22,7 +22,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const { t } = useTranslation();  
+  const { t } = useTranslation();
 
   const [gameState, setGameState] = useState<GameState>({
     players: [],
@@ -34,25 +34,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     roleDistribution: calculateDefaultDistribution(4),
   });
 
-  // // Auto transition to voting after last description
-  // useEffect(() => {
-  //   if (gameState.phase === "description" && gameState.speakingOrder) {
-  //     const allPlayersDescribed = gameState.speakingOrder
-  //       .every(id => {
-  //         const player = gameState.players.find(p => p.id === id);
-  //         return player?.isEliminated || player?.description;
-  //       });
-
-  //     if (allPlayersDescribed) {
-  //       const timer = setTimeout(() => {
-  //         setGameState(prev => ({ ...prev, phase: "voting" }));
-  //       }, 10000); // 10 seconds delay
-
-  //       return () => clearTimeout(timer);
-  //     }
-  //   }
-  // }, [gameState.phase, gameState.players, gameState.speakingOrder]);
-
   const addPlayer = (name: string, id: string) => {
     setGameState((prev) => {
       if (prev.players.length >= 10) {
@@ -63,12 +44,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const score = 0;
       let role = undefined;
       let isEliminated = undefined;
-      if(prev.phase !== "setup") {
+      if (prev.phase !== "setup") {
         role = "spectator";
         isEliminated = true;
       }
 
-      const newPlayers = [...prev.players, { id, name, role, isEliminated, score}];
+      const newPlayers = [...prev.players, { id, name, role, isEliminated, score }];
       return {
         ...prev,
         players: newPlayers,
@@ -86,7 +67,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const newSpeakingOrder = prev.speakingOrder?.filter(s => s !== id);
 
       const gameEnd = checkGameEnd(newPlayers);
-      if(gameEnd) {
+      if (gameEnd) {
         return {
           ...prev,
           phase: "gameEnd",
@@ -95,7 +76,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
           speakingOrder: newSpeakingOrder,
         };
       }
-  
+
       return {
         ...prev,
         players: newPlayers,
@@ -120,13 +101,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const aliveMrWhites = alivePlayers.filter(p => p.role === "mrwhite");
 
     if (aliveUndercovers.length === 0 && aliveMrWhites.length === 0) {
-      if(aliveCivilians.length === 0) return null;
+      if (aliveCivilians.length === 0) return null;
       return "civilian";
     }
 
     if (aliveCivilians.length <= 1) {
-      if(aliveUndercovers.length > 0) {
-        if(aliveMrWhites.length > 0) {
+      if (aliveUndercovers.length > 0) {
+        if (aliveMrWhites.length > 0) {
           return "infiltrators";
         }
         return "undercover";
@@ -143,8 +124,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         if (prev.players.length < 4) {
           toast.error("Minimum 4 players required!");
           return prev;
-        }   
-        
+        }
+
         const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
         const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
         const [majorityWord, undercoverWord] = randomPair;
@@ -207,7 +188,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const updatedPlayers = prev.players.map(p =>
         p.id === playerId ? { ...p, submittedDescription } : p
       );
-    
+
       return {
         ...prev,
         players: updatedPlayers,
@@ -222,21 +203,29 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const allVoted = activePlayers.every(p => p.id in newVotingResults);
 
       if (allVoted) {
+        // Elimination logic
         const voteCount: Record<string, number> = {};
         Object.values(newVotingResults).forEach(id => {
           voteCount[id] = (voteCount[id] || 0) + 1;
         });
 
-        const eliminatedId = Object.entries(voteCount).reduce((a, b) => 
-          (voteCount[a[0]] > voteCount[b[0]] ? a : b)
-        )[0];
+        // Find the highest vote count
+        const maxVotes = Math.max(...Object.values(voteCount));
 
-        const updatedPlayers = prev.players.map(p => 
+        // Get all players with the highest votes
+        const mostVotedPlayers = Object.entries(voteCount)
+          .filter(([_, votes]) => votes === maxVotes)
+          .map(([id]) => id);
+
+        // Randomly select one of the most voted players
+        const eliminatedId = mostVotedPlayers[Math.floor(Math.random() * mostVotedPlayers.length)];
+
+        const updatedPlayers = prev.players.map(p =>
           p.id === eliminatedId ? { ...p, isEliminated: true, submittedDescription: undefined } : { ...p, submittedDescription: undefined }
         );
 
         const eliminatedPlayer = updatedPlayers.find(p => p.id === eliminatedId);
-        
+
         if (eliminatedPlayer?.role === "mrwhite") {
           return {
             ...prev,
