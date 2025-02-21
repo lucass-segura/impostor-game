@@ -7,7 +7,7 @@ import { shuffle } from "@/lib/utils";
 
 interface GameContextType {
   gameState: GameState;
-  setGameState: (state: GameState) => void;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   addPlayer: (name: string, id: string) => void;
   removePlayer: (id: string) => void;
   startGame: () => void;
@@ -17,6 +17,8 @@ interface GameContextType {
   submitDescription: (playerId: string, description: string) => void;
   resetGame: () => void;
   updateRoleDistribution: (distribution: RoleDistribution) => void;
+  checkGameEnd: (players: Player[]) => string | null;
+  eliminatePlayer: (eliminatedId: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -220,29 +222,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         // Randomly select one of the most voted players
         const eliminatedId = mostVotedPlayers[Math.floor(Math.random() * mostVotedPlayers.length)];
 
-        const updatedPlayers = prev.players.map(p =>
-          p.id === eliminatedId ? { ...p, isEliminated: true, submittedDescription: undefined } : { ...p, submittedDescription: undefined }
-        );
-
-        const eliminatedPlayer = updatedPlayers.find(p => p.id === eliminatedId);
-
-        if (eliminatedPlayer?.role === "mrwhite") {
-          return {
-            ...prev,
-            players: updatedPlayers,
-            votingResults: {},
-            phase: "results",
-            lastEliminatedId: eliminatedId,
-          };
-        }
-
-        const gameWinner = checkGameEnd(updatedPlayers);
         return {
           ...prev,
-          players: updatedPlayers,
-          votingResults: {},
-          phase: gameWinner ? "gameEnd" : "results",
-          winner: gameWinner || undefined,
+          votingResults: newVotingResults,
+          phase: "results",
           lastEliminatedId: eliminatedId,
         };
       }
@@ -250,6 +233,21 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       return {
         ...prev,
         votingResults: newVotingResults
+      };
+    });
+  };
+
+  const eliminatePlayer = (eliminatedId: string) => {
+    setGameState((prev) => {
+      const updatedPlayers = prev.players.map(p =>
+        p.id === eliminatedId ? { ...p, isEliminated: true, submittedDescription: undefined } : { ...p, submittedDescription: undefined }
+      );
+    
+      return {
+        ...prev,
+        players: updatedPlayers,
+        phase: "results",
+        lastEliminatedId: eliminatedId,
       };
     });
   };
@@ -311,6 +309,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         submitDescription,
         resetGame,
         updateRoleDistribution,
+        checkGameEnd,
+        eliminatePlayer,
       }}
     >
       {children}

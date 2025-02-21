@@ -8,9 +8,10 @@ import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { useSound } from "@/context/SoundContext";
 import { MrWhiteGuess } from "./shared/MrWhiteGuess";
+import { PlayerList } from "./shared/PlayerList";
 
 export const Results = () => {
-  const { gameState, setPhase, submitMrWhiteGuess } = useGame();
+  const { gameState, setGameState, submitMrWhiteGuess, eliminatePlayer, checkGameEnd } = useGame();
   const { peer, isHost, sendToHost } = usePeer();
   const { playSound } = useSound();
   const [guess, setGuess] = useState("");
@@ -40,6 +41,10 @@ export const Results = () => {
   const currentPlayerGotEliminated = eliminatedPlayer?.id === currentPlayer?.id;
   const isMrWhiteGuessing = eliminatedPlayer?.role === "mrwhite" && !gameState.mrWhiteGuess;
   const canContinue = isHost && !isMrWhiteGuessing;
+
+  // Sort players by speaking order (and filter out eliminated players)
+  const activePlayers = gameState.speakingOrder
+    .map(id => gameState.players.find(p => p.id === id));
   
   const handleGuessSubmit = () => {
     if (!guess.trim()) {
@@ -59,7 +64,17 @@ export const Results = () => {
   };
 
   const handleContinue = () => {
-    setPhase("discussion");
+    eliminatePlayer(eliminatedPlayer?.id);
+    setGameState((prev) => {
+      const gameWinner = checkGameEnd(prev.players);
+
+      return {
+        ...prev,
+        phase: gameWinner ? "gameEnd" : "discussion",
+        winner: gameWinner || undefined,
+        votingResults: {},
+      };
+    });
   };
 
   return (
@@ -108,6 +123,12 @@ export const Results = () => {
           <MrWhiteGuess/>
         </Card>
       )}
+
+      <PlayerList
+        players={activePlayers}
+        votingResults={gameState.votingResults}
+        currentPlayerId={peer?.id}
+      />
 
       <Button
         onClick={handleContinue}
