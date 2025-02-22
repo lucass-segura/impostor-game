@@ -68,15 +68,17 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const newPlayers = prev.players.filter(p => p.id !== id);
       const newSpeakingOrder = prev.speakingOrder?.filter(s => s !== id);
 
-      const gameEnd = checkGameEnd(newPlayers);
-      if (gameEnd) {
-        return {
-          ...prev,
-          phase: "gameEnd",
-          winner: gameEnd,
-          players: newPlayers,
-          speakingOrder: newSpeakingOrder,
-        };
+      if(prev.phase !== "setup") {
+        const gameEnd = checkGameEnd(newPlayers);
+        if (gameEnd) {
+          return {
+            ...prev,
+            phase: "gameEnd",
+            winner: gameEnd,
+            players: newPlayers,
+            speakingOrder: newSpeakingOrder,
+          };
+        }
       }
 
       return {

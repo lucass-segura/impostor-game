@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Users, UserX } from "lucide-react";
 import { Player } from "../../types/game";
+import { useEffect, useState } from "react";
+import { useSound } from "@/context/SoundContext";
 
 interface PlayerListProps {
   players: Player[];
@@ -12,6 +14,7 @@ interface PlayerListProps {
   showEliminated?: boolean;
   lastEliminatedId?: string;
   showScores?: boolean;
+  tieBreakerPlayers?: string[];
 }
 
 export const PlayerList = ({
@@ -24,7 +27,64 @@ export const PlayerList = ({
   showEliminated,
   lastEliminatedId,
   showScores,
+  tieBreakerPlayers = [],
 }: PlayerListProps) => {
+  const { playSound } = useSound();
+
+  // The player that is going to be eliminated (red highlight)
+  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    setHighlightedPlayer(tieBreakerPlayers[0]);
+    if (tieBreakerPlayers.length > 1 && lastEliminatedId) {
+      setIsAnimating(true);
+    }
+  }, [tieBreakerPlayers, lastEliminatedId]);
+
+  useEffect(() => {
+    if (!isAnimating || tieBreakerPlayers.length <= 1) return;
+
+    // Animate the elimination if there is a tie in votes
+    let timeoutId: NodeJS.Timeout;
+    let duration = 400;
+    let iterations = 0;
+    let currentIndex = 0;
+
+    const animate = () => {
+      // Switching between highlighting the players, who are in the tie breaker
+      playSound("/sounds/click-sound.mp3");
+      setHighlightedPlayer(tieBreakerPlayers[currentIndex]);
+      currentIndex = (currentIndex + 1) % tieBreakerPlayers.length;
+      iterations++;
+
+      if (iterations < 10) {
+        //Increase switching speed
+        duration = Math.max(duration * 0.9, 200);
+      } else {
+        //Decrease switching speed
+        duration = duration * 1.15;
+      }
+
+      if (duration > 800) {
+        //Stay on the eliminated player
+        setHighlightedPlayer(lastEliminatedId!);
+        timeoutId = setTimeout(() => {
+          setIsAnimating(false);
+        }, 1500);
+        return;
+      }
+
+      timeoutId = setTimeout(animate, duration);
+    };
+
+    animate();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isAnimating, tieBreakerPlayers, lastEliminatedId]);
+
   const getVotesForPlayer = (playerId: string) => {
     if (!votingResults) return [];
     return Object.entries(votingResults)
@@ -50,13 +110,13 @@ export const PlayerList = ({
 
         <div className="space-y-2">
           {displayPlayers.map((player, index) => {
-            // Don't let player vote himself
             if (!speakingOrder && currentPlayerId && !hasCurrentPlayerVoted && player.id === currentPlayerId) return null;
 
             const votes = getVotesForPlayer(player.id);
             const showVotes = (hasCurrentPlayerVoted || isCurrentPlayerEliminated) && votes.length > 0;
             const isLastEliminated = player.id === lastEliminatedId;
             const isCurrentSpeaker = speakingOrder && index === currentSpeakerIndex;
+            const isHighlighted = highlightedPlayer === player.id;
 
             return (
               <div
@@ -66,13 +126,17 @@ export const PlayerList = ({
                   ${onPlayerClick ? 'cursor-pointer' : ''}
                   ${selectedPlayer === player.id
                     ? 'bg-primary/20 border border-primary/30'
-                    : 'bg-white/5 hover:bg-white/10'
+                    : isHighlighted
+                      ? 'bg-red-500/30 border-2 border-red-500'
+                      : 'bg-white/5 hover:bg-white/10'
                   }
-                  ${isLastEliminated ? 'border-2 border-blue-500' : ''}
+                  ${isLastEliminated && !votingResults ? 'border-2 border-blue-500' : ''}
                   ${player.isEliminated ? 'opacity-50' : ''}
                 `}
                 onClick={() => onPlayerClick?.(player.id)}
               >
+
+                {/* Speaker Indicator: used in WordReveal.tsx (discussion) */}
                 {speakingOrder && (
                   <div className={`
                     w-8 h-8 rounded-full flex items-center justify-center
@@ -90,11 +154,14 @@ export const PlayerList = ({
                         <span className="text-primary ml-2">(You)</span>
                       )}
                     </span>
+                    {/* Text or phrase the player has submitted this round */}
                     {player.submittedDescription && (
                       <p className="text-sm text-white/70 mt-1">
                         {player.submittedDescription}
                       </p>
                     )}
+
+                    {/* Votes Overview: used in VotingScreen.tsx and Results.tsx */}
                     {showVotes && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {votes.map((voterName, vIndex) => (
@@ -115,6 +182,7 @@ export const PlayerList = ({
                     </div>
                   )}
                 </div>
+                {/* Scores Overview: used in GameSetup.tsx */}
                 {showScores && (
                   <div className="flex items-center gap-3">
                     <div className="w-px self-stretch bg-gray-300/20"></div>

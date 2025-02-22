@@ -15,13 +15,16 @@ export const Results = () => {
   const { peer, isHost, sendToHost } = usePeer();
   const { playSound } = useSound();
   const [guess, setGuess] = useState("");
-  
+  const [tieBreakerPlayers, setTieBreakerPlayers] = useState<string[]>([]);
+  const [showEliminatedCard, setShowEliminatedCard] = useState(false);
+
   const currentPlayer = gameState.players.find(p => p.id === peer?.id);
   const eliminatedPlayer = gameState.players
     .find(p => p.id === gameState.lastEliminatedId);
 
-  useEffect(() => {
-    if(gameState.mrWhiteGuess) {
+  const playEliminationSound = () => {
+    console.log("Results useEffect");
+    if (gameState.mrWhiteGuess) {
       return playSound("/sounds/mrwhite-wrong-guess.mp3");
     }
 
@@ -36,7 +39,34 @@ export const Results = () => {
         playSound("/sounds/civilian-eliminated.mp3");
         break;
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    if (gameState.lastEliminatedId && gameState.votingResults) {
+      // Count votes for each player to determine if there was a tie
+      const voteCount: Record<string, number> = {};
+      Object.values(gameState.votingResults).forEach(targetId => {
+        voteCount[targetId] = (voteCount[targetId] || 0) + 1;
+      });
+
+      const maxVotes = Math.max(...Object.values(voteCount));
+      const mostVotedPlayers = Object.entries(voteCount)
+        .filter(([_, votes]) => votes === maxVotes)
+        .map(([id]) => id);
+
+      setTieBreakerPlayers(mostVotedPlayers);
+
+      if (mostVotedPlayers.length > 1) {
+        setTimeout(() => {
+          setShowEliminatedCard(true);
+          playEliminationSound();
+        }, 7000);
+      } else {
+        setShowEliminatedCard(true);
+        playEliminationSound();
+      }
+    }
+  }, [gameState.lastEliminatedId, gameState.votingResults]);
 
   const currentPlayerGotEliminated = eliminatedPlayer?.id === currentPlayer?.id;
   const isMrWhiteGuessing = eliminatedPlayer?.role === "mrwhite" && !gameState.mrWhiteGuess;
@@ -45,14 +75,14 @@ export const Results = () => {
   // Sort players by speaking order (and filter out eliminated players)
   const activePlayers = gameState.speakingOrder
     .map(id => gameState.players.find(p => p.id === id));
-  
+
   const handleGuessSubmit = () => {
     if (!guess.trim()) {
       toast.error("Please enter a guess");
       return;
     }
-    
-    if(isHost) {
+
+    if (isHost) {
       submitMrWhiteGuess(guess.trim());
     } else {
       // Send guess to host
@@ -60,7 +90,7 @@ export const Results = () => {
         type: "MR_WHITE_GUESS",
         guess: guess.trim()
       });
-    }  
+    }
   };
 
   const handleContinue = () => {
@@ -80,8 +110,8 @@ export const Results = () => {
   return (
     <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-4 text-white">Results</h2>
-      
-      {eliminatedPlayer && (
+
+      {showEliminatedCard && eliminatedPlayer && (
         <Card className="p-6 text-center glass-morphism">
           <h3 className="text-xl font-bold mb-4 text-white">
             {currentPlayerGotEliminated ? "You have been eliminated" : `${eliminatedPlayer.name} was eliminated!`}
@@ -89,8 +119,8 @@ export const Results = () => {
           <p className="text-lg mb-2 text-white">
             {currentPlayerGotEliminated ? "You" : "They"} were a{" "}
             <span className="font-bold text-primary">
-              {eliminatedPlayer.role === "mrwhite" 
-                ? "Mr. White" 
+              {eliminatedPlayer.role === "mrwhite"
+                ? "Mr. White"
                 : eliminatedPlayer.role}
             </span>
           </p>
@@ -99,7 +129,7 @@ export const Results = () => {
               Their word was: {eliminatedPlayer.word}
             </p>
           )}
-          
+
           {isMrWhiteGuessing && currentPlayerGotEliminated && (
             <div className="mt-4 space-y-4">
               <p className="text-white/80">Make your final guess!</p>
@@ -110,7 +140,7 @@ export const Results = () => {
                   placeholder="Enter your guess..."
                   className="flex-1"
                 />
-                <Button 
+                <Button
                   onClick={handleGuessSubmit}
                   className="bg-primary hover:bg-primary/90"
                 >
@@ -120,7 +150,7 @@ export const Results = () => {
             </div>
           )}
 
-          <MrWhiteGuess/>
+          <MrWhiteGuess />
         </Card>
       )}
 
@@ -128,6 +158,8 @@ export const Results = () => {
         players={activePlayers}
         votingResults={gameState.votingResults}
         currentPlayerId={peer?.id}
+        tieBreakerPlayers={tieBreakerPlayers}
+        lastEliminatedId={gameState.lastEliminatedId}
       />
 
       <Button
