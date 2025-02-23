@@ -167,7 +167,7 @@ export const PlayerList = ({
                         {votes.map((voterName, vIndex) => (
                           <span
                             key={vIndex}
-                            className="px-2 py-1 text-sm rounded-full bg-primary/20 text-white/90"
+                            className="px-2 py-1 text-sm rounded-full bg-primary/60 text-white"
                           >
                             {voterName}
                           </span>

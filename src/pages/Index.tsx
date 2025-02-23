@@ -46,7 +46,7 @@ const GameContent = () => {
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent via-secondary to-accent text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-3">
         <SoundProvider>
           <GameProvider>
             <PeerProvider>

@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { useSound } from "@/context/SoundContext";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
-import { ExplanationMessage } from "./shared/ExplanationMessage";
 
 export const WordReveal = () => {
   const { gameState, setPhase, submitDescription } = useGame();
@@ -90,29 +89,33 @@ export const WordReveal = () => {
   const isMyTurn = gameState.speakingOrder && currentSpeakerIndex === myIndex;
 
   return (
-    <div className="max-w-md mx-auto p-6 space-y-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-center mb-4 text-white">{currentPlayer.isEliminated ? "You're eliminated" : "Your Word"}</h2>
-
-      {showExplanation && currentPlayer && (
-        <ExplanationMessage
-          role={currentPlayer.role}
-          onClose={handleCloseExplanation}
-        />
-      )}
-
+    <div className="max-w-md mx-auto p-6 space-y-4 animate-fade-in">
+      <h2 className="text-2xl font-bold text-center mb-4 text-white">{currentPlayer.isEliminated ? "You're eliminated" : "Discussion"}</h2>
       <Card className="p-6 text-center glass-morphism">
         <div className="space-y-4">
           {currentPlayer.role === "mrwhite" ? (
-            <p className="text-lg text-white">You are Mr. White!</p>
+            <p className="text-lg text-white">You are <span className="font-bold text-primary">Mr.White</span></p>
           ) : (
             <p className="text-lg text-white">
-              Your word is: <span className="font-bold text-primary">{currentPlayer.word}</span>
+              Your word {currentPlayer.isEliminated ? "was" : "is"}: <span className="font-bold text-primary">{currentPlayer.word}</span>
             </p>
           )}
           <p className="text-sm text-white/70">
             {currentPlayer.role === "mrwhite"
-              ? "Try to blend in without knowing the word!"
-              : "Remember this word but don't say it directly!"}
+              ? (
+                <>
+                  Listen carefully and try to blend in!
+                  <br />
+                  Figure out the secret word from others descriptions.
+                </>
+              )
+              : (
+                <>
+                  Describe the word without saying it directly.
+                  <br />
+                  Be clever - there might be infiltrators among us!
+                </>
+              )}
           </p>
         </div>
       </Card>
