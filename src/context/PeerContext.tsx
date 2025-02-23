@@ -40,7 +40,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error("Connection error occurred");
     });
 
-    //Host connection events
+    //HOST CONNECTION EVENTS
     newPeer.on("connection", (conn) => {
       console.log("Incoming connection from:", conn.peer);
 
@@ -77,7 +77,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       conn.on("data", (data: any) => {
-        console.log("Received data:", data);
+        console.debug("Received data:", data);
         switch (data.type) {
           case "JOIN_GAME":
             console.log("New player joining:", data.username);
@@ -86,19 +86,19 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
             conn.send({ type: "GAME_STATE", state: gameState });
             break;
           case "GAME_STATE":
-            console.log("Received game state:", data.state);
+            console.debug("Received game state:", data.state);
             setGameState(data.state);
             break;
           case "SUBMIT_VOTE":
-            console.log("Received vote:", data);
+            console.debug("Received vote:", data);
             submitVote(data.voterId, data.targetId);
             break;
           case "SUBMIT_DESCRIPTION":
-            console.log("Received description:", data);
+            console.debug("Received description:", data);
             submitDescription(data.playerId, data.description);
             break;
           case "MR_WHITE_GUESS":
-            console.log("Received Mr. White guess:", data);
+            console.debug("Received Mr. White guess:", data);
             submitMrWhiteGuess(data.guess);
             break;
           default:
@@ -155,9 +155,9 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     conn.on("data", (data: any) => {
-      console.log("Received data in connection:", data);
+      console.debug("Received data in connection:", data);
       if (data.type === "GAME_STATE") {
-        console.log("Setting received game state:", data.state);
+        console.debug("Setting received game state:", data.state);
         setGameState(data.state);
       }
     });
@@ -176,7 +176,7 @@ export const PeerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const sendGameState = (state: GameState) => {
-    console.log("Sending game state to all connections:", state);
+    console.debug("Sending game state to all connections:", state);
     Object.values(connections).forEach(conn => {
       conn.send({ type: "GAME_STATE", state });
     });

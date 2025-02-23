@@ -23,7 +23,6 @@ export const Results = () => {
     .find(p => p.id === gameState.lastEliminatedId);
 
   const playEliminationSound = () => {
-    console.log("Results useEffect");
     if (gameState.mrWhiteGuess) {
       return playSound("/sounds/mrwhite-wrong-guess.mp3");
     }
