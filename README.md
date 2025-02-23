@@ -2,11 +2,11 @@
 Undercover word game
 </h1>
 
-<h4 align="center">The <a href="http://electron.atom.io" target="_blank">Undercover</a> word exposing game for the web!</h4>
+<h4 align="center">The <a href="https://www.yanstarstudio.com/de/undercover-game" target="_blank">Undercover</a> word exposing game for the web!</h4>
 
 <p align="center">
     <a href="https://undercover.localplayer.dev/">
-        <img src="https://img.shields.io/badge/Play-yourself-blue.svg?style=shields"
+        <img src="https://img.shields.io/badge/Play-now-blue.svg?style=shields"
             alt="Gitter">
   </a>
   <a href="https://github.com/antebrl/undercover-word-game/actions/workflows/deploy.yml">
