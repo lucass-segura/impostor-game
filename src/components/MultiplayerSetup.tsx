@@ -85,6 +85,7 @@ export const MultiplayerSetup = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
+              maxLength={25}
               className="w-full bg-secondary/20 border-secondary/30"
             />
             <Button
@@ -110,6 +111,7 @@ export const MultiplayerSetup = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
+              maxLength={25}
               className="w-full bg-secondary/20 border-secondary/30"
             />
             <Input

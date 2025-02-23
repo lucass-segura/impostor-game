@@ -19,6 +19,7 @@ interface GameContextType {
   updateRoleDistribution: (distribution: RoleDistribution) => void;
   checkGameEnd: (players: Player[]) => string | null;
   eliminatePlayer: (eliminatedId: string) => void;
+  rerollWords: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -68,7 +69,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const newPlayers = prev.players.filter(p => p.id !== id);
       const newSpeakingOrder = prev.speakingOrder?.filter(s => s !== id);
 
-      if(prev.phase !== "setup") {
+      if (prev.phase !== "setup") {
         const gameEnd = checkGameEnd(newPlayers);
         if (gameEnd) {
           return {
@@ -122,6 +123,38 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
+  const generateAndAssignWords = (players: Player[]) => {
+    const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
+    const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
+    const [majorityWord, undercoverWord] = randomPair;
+
+    const updatedPlayers = players.map(player => ({
+      ...player,
+      word: player.role === "mrwhite" ? "" : player.role === "undercover" ? undercoverWord : majorityWord,
+      submittedDescription: undefined,
+    }));
+
+    return {
+      players: updatedPlayers,
+      majorityWord,
+      undercoverWord,
+    };
+  };
+
+  const rerollWords = () => {
+    setGameState(prev => {
+      if (prev.currentRound !== 1) return prev;
+
+      const { players, majorityWord, undercoverWord } = generateAndAssignWords(prev.players);
+      return {
+        ...prev,
+        players,
+        majorityWord,
+        undercoverWord,
+      };
+    });
+  };
+
   const startGame = () => {
     setGameState((prev) => {
       if (prev.currentRound === 0) {
@@ -130,39 +163,30 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
           return prev;
         }
 
-        const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
-        const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
-        const [majorityWord, undercoverWord] = randomPair;
-
         const shuffledPlayers = shuffle(prev.players);
         const { undercovers, mrWhites } = prev.roleDistribution;
 
-        const updatedPlayers = shuffledPlayers.map((player, index) => {
+        const playersWithRoles = shuffledPlayers.map((player, index) => {
           let role: PlayerRole = "civilian";
-          let word = majorityWord;
-
           if (index < mrWhites) {
             role = "mrwhite";
-            word = "";
           } else if (index < mrWhites + undercovers) {
             role = "undercover";
-            word = undercoverWord;
           }
 
           return {
             ...player,
-            word,
             role,
             isEliminated: false,
-            submittedDescription: undefined,
           };
         });
 
-        const speakingOrder = generateSpeakingOrder(updatedPlayers);
+        const { players, majorityWord, undercoverWord } = generateAndAssignWords(playersWithRoles);
+        const speakingOrder = generateSpeakingOrder(players);
 
         return {
           ...prev,
-          players: updatedPlayers,
+          players,
           speakingOrder,
           phase: "wordReveal",
           majorityWord,
@@ -244,7 +268,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const updatedPlayers = prev.players.map(p =>
         p.id === eliminatedId ? { ...p, isEliminated: true, submittedDescription: undefined } : { ...p, submittedDescription: undefined }
       );
-    
+
       return {
         ...prev,
         players: updatedPlayers,
@@ -313,6 +337,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         updateRoleDistribution,
         checkGameEnd,
         eliminatePlayer,
+        rerollWords,
       }}
     >
       {children}

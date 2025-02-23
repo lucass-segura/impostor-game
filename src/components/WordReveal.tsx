@@ -9,26 +9,17 @@ import { Input } from "./ui/input";
 import { toast } from "sonner";
 
 export const WordReveal = () => {
-  const { gameState, setPhase, submitDescription } = useGame();
+  const { gameState, setPhase, submitDescription, rerollWords } = useGame();
   const { peer, isHost, sendToHost } = usePeer();
   const { playSound } = useSound();
 
   const [description, setDescription] = useState("");
-  const [showExplanation, setShowExplanation] = useState(true);
 
   useEffect(() => {
     if (gameState.currentRound === 1) {
       playSound("/sounds/word-reveal.mp3");
     } else {
       playSound("/sounds/new-page.mp3");
-    }
-  }, []);
-
-  useEffect(() => {
-    // Check if the user has dismissed the explanation before
-    const hasSeenExplanation = localStorage.getItem('hasSeenWordExplanation');
-    if (hasSeenExplanation) {
-      setShowExplanation(false);
     }
   }, []);
 
@@ -56,11 +47,6 @@ export const WordReveal = () => {
       });
     }
     setDescription("");
-  };
-
-  const handleCloseExplanation = () => {
-    setShowExplanation(false);
-    localStorage.setItem('hasSeenWordExplanation', 'true');
   };
 
   if (!peer) {
@@ -153,13 +139,28 @@ export const WordReveal = () => {
       </div>
 
       {isHost && (
-        <Button
-          onClick={handleStartVoting}
-          size="lg"
-          className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
-        >
-          Start Voting
-        </Button>
+        <div className="space-y-2">
+          <Button
+            onClick={handleStartVoting}
+            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200"
+          >
+            Start Voting
+          </Button>
+          {gameState.currentRound === 1 && (
+            <Button
+              onClick={() => {
+                rerollWords();
+                toast.success("Rerolled word-pair!");
+              }}
+              variant="outline"
+              size="lg"
+              className="w-full border-primary text-primary hover:bg-primary/10"
+            >
+              Reroll Words
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

@@ -96,7 +96,7 @@ export const GameEnd = () => {
                   <User className="w-5 h-5 text-primary" />
                 )}
                 <div>
-                  <p className="text-lg text-white">{player.name}</p>
+                  <p className="text-lg block max-w-[250px] truncate text-white">{player.name}</p>
                   <p className="text-sm text-white/70">
                   {player.role}{player.word && ` - Word: ${player.word}`}
                   </p>

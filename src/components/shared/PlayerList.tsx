@@ -148,7 +148,7 @@ export const PlayerList = ({
                 )}
                 <div className="flex-1 flex items-center justify-between">
                   <div>
-                    <span className={`text-lg ${isCurrentSpeaker ? 'text-primary font-bold' : 'text-white'}`}>
+                    <span className={`text-lg block max-w-[250px] truncate ${isCurrentSpeaker ? 'text-primary font-bold' : 'text-white'}`}>
                       {player.name}
                       {player.id === currentPlayerId && (
                         <span className="text-primary ml-2">(You)</span>
