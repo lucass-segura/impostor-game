@@ -93,10 +93,14 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const generateSpeakingOrder = (players: Player[]) => {
     const activePlayers = players.filter(p => !p.isEliminated);
     const nonWhitePlayers = activePlayers.filter(p => p.role !== "mrwhite");
-    const whitePlayers = activePlayers.filter(p => p.role === "mrwhite");
-    const shuffledNonWhite = shuffle(nonWhitePlayers);
-    const shuffledWhite = shuffle(whitePlayers);
-    return [...shuffledNonWhite, ...shuffledWhite].map(player => player.id);
+
+    // Ensure the first player is not a Mr. White
+    const firstPlayer = nonWhitePlayers[Math.floor(Math.random() * nonWhitePlayers.length)];
+
+    const remainingPlayers = activePlayers.filter(p => p.id !== firstPlayer.id);
+    const shuffledRemaining = shuffle(remainingPlayers);
+
+    return [firstPlayer, ...shuffledRemaining].map(player => player.id);
   };
 
   const checkGameEnd = (players: Player[]) => {
