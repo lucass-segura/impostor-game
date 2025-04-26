@@ -157,7 +157,10 @@ export const Results = () => {
         players={activePlayers}
         votingResults={gameState.votingResults}
         currentPlayerId={peer?.id}
-        tieBreakerPlayers={tieBreakerPlayers}
+        tieBreakerPlayers={
+          gameState.mrWhiteGuess == null // prevent playing tiebreaker animation again after mrWhite guess
+          ? tieBreakerPlayers : []
+        }
         lastEliminatedId={gameState.lastEliminatedId}
       />
 
