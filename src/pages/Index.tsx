@@ -12,6 +12,7 @@ import { GameEnd } from "../components/GameEnd";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import { SoundProvider } from "@/context/SoundContext";
+import SelectorLanguage from "@/components/SelectorLanguage";
 
 const GameContent = () => {
   const { gameState } = useGame();
@@ -47,6 +48,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent via-secondary to-accent text-white">
       <div className="container mx-auto px-4 py-3">
+      <SelectorLanguage />
         <SoundProvider>
           <GameProvider>
             <PeerProvider>
@@ -64,13 +66,6 @@ const Index = () => {
           rel="noopener noreferrer"
           className="fixed bottom-4 left-4 md:bottom-8 md:left-8"
         >
-          <Button
-            variant="secondary"
-            className="glass-morphism hover:bg-white/10 transition-all duration-300"
-          >
-            <Github className="mr-2 h-4 w-4" />
-            View on GitHub
-          </Button>
         </a>
       </div>
     </div>

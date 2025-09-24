@@ -7,9 +7,16 @@ import { PlayerList } from "./shared/PlayerList";
 import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { distributionMeetsLimits } from "@/config/roleDistribution";
+import { useTranslation } from "react-i18next";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import i18n, { t } from "i18next";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Settings } from "lucide-react";
+
 
 export const GameSetup = () => {
-  const { gameState, startGame, updateRoleDistribution } = useGame();
+  const { gameState, startGame, updateRoleDistribution, selectedCollection, setSelectedCollection } = useGame();
   const { hostId, isHost } = usePeer();
   const isMobile = useIsMobile();
 
@@ -21,6 +28,7 @@ export const GameSetup = () => {
     }
   };
 
+  const collections = i18n.t('wordCollections', { returnObjects: true }) as Record<string, string>;
   const hasEnoughPlayers = gameState.players.length >= 4;
   const roleDistribution = gameState.roleDistribution;
 
@@ -43,6 +51,24 @@ export const GameSetup = () => {
           </div>
         </div>
       </div>
+
+      <div className="space-y-2 glass-morphism p-6 rounded-lg ">
+            <Label htmlFor="collection-select" className="text-sm font-medium text-white/70">
+              {t("Selecciona una Coleccion")}
+            </Label>
+            <Select value={selectedCollection} onValueChange={setSelectedCollection}>
+              <SelectTrigger className="w-full bg-white/10 border border-primary/30 text-white">
+                <SelectValue placeholder={t("gameSetup.chooseCollection")} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(collections).map(([key, value]) => (
+                  <SelectItem key={key} value={key}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
         <PlayerList

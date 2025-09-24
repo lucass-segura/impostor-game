@@ -3,9 +3,12 @@ import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../t
 import { toast } from "sonner";
 import { calculateDefaultDistribution } from "../config/roleDistribution";
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import { shuffle } from "@/lib/utils";
 
 interface GameContextType {
+  selectedCollection: string;
+  setSelectedCollection: (collection: string) => void;
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   addPlayer: (name: string, id: string) => void;
@@ -25,6 +28,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
+  const [selectedCollection, setSelectedCollection] = useState<string>('general'); // Añade este estado
   const { t } = useTranslation();
 
   const [gameState, setGameState] = useState<GameState>({
@@ -160,6 +164,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startGame = () => {
+    const wordPairs = i18n.t(`collections.${selectedCollection}`, { returnObjects: true });
     setGameState((prev) => {
       if (prev.currentRound === 0) {
         if (prev.players.length < 4) {
@@ -330,6 +335,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         gameState,
         setGameState,
+        selectedCollection,
+        setSelectedCollection,
         addPlayer,
         removePlayer,
         startGame,

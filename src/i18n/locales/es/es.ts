@@ -4,10 +4,10 @@ import lol from "./collections/lol";
 
 export default {
   translation: {
-    welcome: "Welcome to Undercover!",
+    welcome: "¡Bienvenido al Impostor!",
     wordCollections: {
       general: "General",
-      sports: "Sports",
+      sports: "Deportes",
       lol: "League of Legends"
     },
     collections: {

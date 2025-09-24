@@ -1,4 +1,4 @@
-const wordPairs = [
+const general = [
     ['Hund', 'Katze'],
     ['Pizza', 'Burger'],
     ['Strand', 'Berg'],
@@ -299,4 +299,4 @@ const wordPairs = [
     ['BH', 'Bikini'],
 ];
 
-export default wordPairs;
+export default general;
