@@ -1,11 +1,23 @@
 const sports = [
     ['Football', 'Basketball'],
     ['Soccer', 'Rugby'],
-    ['Baseball', 'Football'],
-    ['Volleyball', 'Basketball'],
-    ['Table tennis', 'Badminton'],
+    ['Baseball', 'Volleyball'],
+    ['Table Tennis', 'Badminton'],
     ['Boxing', 'Karate'],
-    ['Hockey', 'Soccer'],
-];
-
-export default sports;
+    ['Hockey', 'Tennis'],
+    ['Swimming', 'Athletics'],
+    ['Cycling', 'Golf'],
+    ['Wrestling', 'Taekwondo'],
+    ['Surfing', 'Skateboarding'],
+    ['Handball', 'Softball'],
+    ['Judo', 'Archery'],
+    ['Climbing', 'Canoeing'],
+    ['Rowing', 'Sailing'],
+    ['Ice Hockey', 'Snowboarding'],
+    ['Figure Skating', 'Skiing'],
+    ['Kickboxing', 'Muay Thai'],
+    ['Polo', 'Water Polo']
+  ];
+  
+  export default sports;
+  
