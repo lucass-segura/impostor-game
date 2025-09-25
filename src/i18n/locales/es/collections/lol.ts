@@ -132,4 +132,5 @@ const lol = [
     ['Sylas', 'Viego'], ['Viego', 'Sylas'],
     ['Taliyah', 'Zoe'], ['Zoe', 'Taliyah'],
 ]
-  
+
+export default lol;
