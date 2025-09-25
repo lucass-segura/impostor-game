@@ -29,4 +29,5 @@ export type GameState = {
   winner?: string;
   mrWhiteGuess?: string;
   roleDistribution: RoleDistribution;
+  selectedCollection: string;
 };

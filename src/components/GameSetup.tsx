@@ -9,16 +9,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { distributionMeetsLimits } from "@/config/roleDistribution";
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import i18n, { t } from "i18next";
+import i18n from "i18next";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Settings } from "lucide-react";
-
 
 export const GameSetup = () => {
-  const { gameState, startGame, updateRoleDistribution, selectedCollection, setSelectedCollection } = useGame();
+  const { gameState, startGame, updateRoleDistribution, setSelectedCollection } = useGame();
   const { hostId, isHost } = usePeer();
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   const handleCopyLink = () => {
     if (hostId) {
@@ -56,7 +54,7 @@ export const GameSetup = () => {
             <Label htmlFor="collection-select" className="text-sm font-medium text-white/70">
               {t("Selecciona una Coleccion")}
             </Label>
-            <Select value={selectedCollection} onValueChange={setSelectedCollection}>
+            <Select value={gameState.selectedCollection} onValueChange={setSelectedCollection} disabled={!isHost}>
               <SelectTrigger className="w-full bg-white/10 border border-primary/30 text-white">
                 <SelectValue placeholder={t("gameSetup.chooseCollection")} />
               </SelectTrigger>

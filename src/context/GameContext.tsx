@@ -1,3 +1,5 @@
+// src/context/GameContext.tsx
+
 import React, { createContext, useContext, useState } from "react";
 import { GameState, Player, GamePhase, PlayerRole, RoleDistribution } from "../types/game";
 import { toast } from "sonner";
@@ -7,8 +9,6 @@ import i18n from "i18next";
 import { shuffle } from "@/lib/utils";
 
 interface GameContextType {
-  selectedCollection: string;
-  setSelectedCollection: (collection: string) => void;
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   addPlayer: (name: string, id: string) => void;
@@ -23,12 +23,12 @@ interface GameContextType {
   checkGameEnd: (players: Player[]) => string | null;
   eliminatePlayer: (eliminatedId: string) => void;
   rerollWords: () => void;
+  setSelectedCollection: (collection: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const [selectedCollection, setSelectedCollection] = useState<string>('general'); // Añade este estado
   const { t } = useTranslation();
 
   const [gameState, setGameState] = useState<GameState>({
@@ -39,7 +39,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     undercoverWord: "",
     mrWhiteGuess: undefined,
     roleDistribution: calculateDefaultDistribution(4),
+    selectedCollection: 'general',
   });
+
+  const setSelectedCollection = (collection: string) => { 
+    setGameState(prev => ({
+      ...prev,
+      selectedCollection: collection,
+    }));
+  };
 
   const addPlayer = (name: string, id: string) => {
     setGameState((prev) => {
@@ -131,8 +139,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   };
 
-  const generateAndAssignWords = (players: Player[]) => {
-    const wordPairs = t("wordPairs", { returnObjects: true }) as [string, string][];
+  const generateAndAssignWords = (players: Player[], collection: string) => { // Modificar esta línea
+    const wordPairs = i18n.t(`collections.${collection}`, { returnObjects: true }) as [string, string][]; // Modificar esta línea
     const randomPair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
     const [majorityWord, undercoverWord] = randomPair;
 
@@ -153,7 +161,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     setGameState(prev => {
       if (prev.currentRound !== 1) return prev;
 
-      const { players, majorityWord, undercoverWord } = generateAndAssignWords(prev.players);
+      const { players, majorityWord, undercoverWord } = generateAndAssignWords(prev.players, prev.selectedCollection); // Modificar esta línea
       return {
         ...prev,
         players,
@@ -164,7 +172,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const startGame = () => {
-    const wordPairs = i18n.t(`collections.${selectedCollection}`, { returnObjects: true });
     setGameState((prev) => {
       if (prev.currentRound === 0) {
         if (prev.players.length < 4) {
@@ -190,7 +197,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
           };
         });
 
-        const { players, majorityWord, undercoverWord } = generateAndAssignWords(playersWithRoles);
+        const { players, majorityWord, undercoverWord } = generateAndAssignWords(playersWithRoles, prev.selectedCollection); // Modificar esta línea
         const speakingOrder = generateSpeakingOrder(players);
 
         return {
@@ -312,6 +319,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     setGameState((prev) => {
       const players = prev.players.map(p => ({ ...p, isEliminated: false, submittedDescription: undefined }));
       return {
+        ...prev, // Mantener selectedCollection
         players: players,
         phase: "setup",
         currentRound: 0,
@@ -335,8 +343,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         gameState,
         setGameState,
-        selectedCollection,
-        setSelectedCollection,
         addPlayer,
         removePlayer,
         startGame,
@@ -349,6 +355,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         checkGameEnd,
         eliminatePlayer,
         rerollWords,
+        setSelectedCollection, // Añadir esta línea
       }}
     >
       {children}
