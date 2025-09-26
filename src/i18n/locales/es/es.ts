@@ -4,7 +4,9 @@ import lol from "./collections/lol";
 
 export default {
   translation: {
-    welcome: "¡Bienvenido al Impostor!",
+    general: {
+      back: "Volver"
+    },
     wordCollections: {
       general: "General",
       sports: "Deportes",
@@ -14,6 +16,15 @@ export default {
       general,
       sports,
       lol
+    },
+    multiplayerSetup: {
+      welcome: "¡Bienvenido al Impostor!",
+      hostGame: "Hostear Juego Nuevo",
+      existingGame: "O UNETE A UN JUEGO",
+      joinGame: "Unirse a Juego",
+      enterUsername: "Ingresa tu nombre de usuario",
+      startHosting: "Empezar a Hostear",
+      gameID: "Ingresa el ID del Juego"
     }
   }
 };

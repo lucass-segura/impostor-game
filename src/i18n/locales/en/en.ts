@@ -4,7 +4,9 @@ import lol from "./collections/lol";
 
 export default {
   translation: {
-    welcome: "Welcome to Undercover!",
+    general: {
+      back: "Back"
+    },
     wordCollections: {
       general: "General",
       sports: "Sports",
@@ -14,6 +16,15 @@ export default {
       general,
       sports,
       lol
+    },
+    multiplayerSetup: {
+      welcome: "Welcome to Undercover!",
+      hostGame: "Host New Game",
+      existingGame: "OR JOIN AN EXISTING GAME",
+      joinGame: "Join Game",
+      enterUsername: "Enter your username",
+      startHosting: "Start Hosting",
+      gameID: "Enter Game ID"
     }
   }
 };
