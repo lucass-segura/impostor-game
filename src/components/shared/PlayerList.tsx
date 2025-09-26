@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Users, UserX } from "lucide-react";
 import { Player } from "../../types/game";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSound } from "@/context/SoundContext";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface PlayerListProps {
   players: Player[];
@@ -32,6 +34,7 @@ export const PlayerList = ({
   const { playSound } = useSound();
 
   // The player that is going to be eliminated (red highlight)
+  const { t } = useTranslation();
   const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -105,7 +108,7 @@ export const PlayerList = ({
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-white/90 text-lg">
           <Users className="h-5 w-5" />
-          <span>Players ({displayPlayers.length})</span>
+          <span> {t('gameSetup.players')} ({displayPlayers.length})</span>
         </div>
 
         <div className="space-y-2">

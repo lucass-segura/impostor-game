@@ -32,7 +32,7 @@ export const GameSetup = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-white mb-8 text-center">Game Setup</h1>
+      <h1 className="text-4xl font-bold text-white mb-8 text-center">{t('gameSetup.title')}</h1>
 
       <div
         onClick={handleCopyLink}
@@ -40,7 +40,7 @@ export const GameSetup = () => {
       >
         <div className="flex items-center gap-2 text-white/90 text-lg mb-4">
           <Hash className="h-5 w-5" />
-          <span>Game Link - Share to friends</span>
+          <span>{t('gameSetup.link')}</span>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 w-full">
@@ -52,7 +52,7 @@ export const GameSetup = () => {
 
       <div className="space-y-2 glass-morphism p-6 rounded-lg ">
             <Label htmlFor="collection-select" className="text-sm font-medium text-white/70">
-              {t("Selecciona una Coleccion")}
+              {t('gameSetup.selectCollection')}
             </Label>
             <Select value={gameState.selectedCollection} onValueChange={setSelectedCollection} disabled={!isHost}>
               <SelectTrigger className="w-full bg-white/10 border border-primary/30 text-white">
@@ -76,10 +76,10 @@ export const GameSetup = () => {
 
         <div className="space-y-6">
           <Card className="p-6 bg-white/5">
-            <h3 className="text-lg font-semibold text-white mb-6">Role Distribution</h3>
+            <h3 className="text-lg font-semibold text-white mb-6">{t('gameSetup.roles')}</h3>
             <div className="space-y-6">
               <div className="text-center text-white/70">
-                {gameState.players.length - roleDistribution.mrWhites - roleDistribution.undercovers} civilians
+                {gameState.players.length - roleDistribution.mrWhites - roleDistribution.undercovers} {t('gameSetup.civilians')}
               </div>
               <div className="flex items-center justify-between gap-4">
                 <Button
@@ -98,7 +98,7 @@ export const GameSetup = () => {
                   <Minus className="h-4 w-4" />
                 </Button>
                 <div className="flex-1 text-center text-white">
-                  {roleDistribution.undercovers} undercovers
+                  {roleDistribution.undercovers} {t('gameSetup.undercovers')}
                 </div>
                 <Button
                   variant="outline"
@@ -133,7 +133,7 @@ export const GameSetup = () => {
                   <Minus className="h-4 w-4" />
                 </Button>
                 <div className="flex-1 text-center text-white">
-                  {roleDistribution.mrWhites} mr whites
+                  {roleDistribution.mrWhites} {t('gameSetup.mrWhites')}
                 </div>
                 <Button
                   variant="outline"
@@ -157,7 +157,7 @@ export const GameSetup = () => {
           <div className="space-y-2">
             {!hasEnoughPlayers && (
               <div className="text-red-500 text-sm text-center mb-2">
-                At least 4 players are required to start the game
+                {t('gameSetup.alertPlayers')}
               </div>
             )}
             <Button
@@ -166,7 +166,7 @@ export const GameSetup = () => {
               disabled={!isHost || !hasEnoughPlayers}
               className="w-full bg-primary hover:bg-primary/90 text-lg font-medium transition-colors duration-200 disabled:opacity-50"
             >
-              Start Game ({gameState.players.length} players)
+              {t('gameSetup.startGame')} ({gameState.players.length} {t('gameSetup.players')})
             </Button>
           </div>
         </div>
